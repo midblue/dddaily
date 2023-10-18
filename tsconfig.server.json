@@ -1,0 +1,11 @@
+{
+  "include": ["./server/**/*", "@types"],
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "outDir": "./dist",
+    "noImplicitAny": false
+  }
+}
