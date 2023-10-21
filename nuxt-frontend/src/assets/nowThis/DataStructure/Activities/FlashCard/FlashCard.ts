@@ -1,4 +1,4 @@
-import * as c from '../../../../../../../common'
+import * as c from '~/../../common'
 import { Entity } from '../../BaseClasses/Entity'
 
 export class FlashCard extends Entity {

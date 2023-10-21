@@ -1,73 +1,110 @@
-import * as c from '../../../../../common'
+import * as c from '~/../../common'
 
 export const localStorageAvailable =
   typeof localStorage !== 'undefined'
 
-function save(elementToSave: EntityConstructorData) {
+export function setPassword(password: string) {
+  localStorage.setItem('password', password)
+}
+export function getPassword() {
+  return localStorage.getItem('password') || ''
+}
+export function getUserId() {
+  return localStorage.getItem('userId') || ''
+}
+export function setUserId(userId: string) {
+  localStorage.setItem('userId', userId)
+}
+
+function save(saveableData: SaveableData) {
+  const pathString = c.gettablePathToDbPath(
+    c.saveableDataToGettablePath(saveableData),
+  )
   localStorage.setItem(
-    elementToSave.id,
-    JSON.stringify(elementToSave),
+    pathString,
+    JSON.stringify(saveableData.elementToSave),
   )
 }
 
-export function saveElement({
-  elementToSave,
-  parentPath,
-}: SaveableData): boolean {
+export function saveElement(
+  saveableData: SaveableData,
+): boolean {
   if (!localStorageAvailable) return false
 
-  c.log('Saving element locally', elementToSave, parentPath)
-  save(elementToSave)
+  c.log('Saving element locally', saveableData)
+  save(saveableData)
   return true
 }
 
-function reconcileRemoteSingleEntityWithLocal(
-  local: EntityConstructorData,
-  remote: EntityConstructorData,
-) {
-  const merged = c.pickMoreRecentEntity(local, remote)
-  const didUseRemote = merged === remote
-  if (didUseRemote) save(merged)
+export function loadElementFromLocal<
+  T extends EntityConstructorData,
+>(path: GettablePath): T | null {
+  if (!localStorageAvailable) return null
 
-  return merged
+  const pathString = c.gettablePathToDbPath(path)
+  const localRes = localStorage.getItem(pathString)
+  if (!localRes) return null
+  const parsed = JSON.parse(localRes)
+  return parsed as T
+}
+
+// function reconcileRemoteSingleEntityWithLocal(
+//   local: EntityConstructorData,
+//   remote: EntityConstructorData,
+// ) {
+//   const merged = c.mergeByRecency(local, remote)
+//   const wereSame = merged === local
+//   if (!wereSame) save(merged)
+
+//   return merged
+// }
+
+export function removeElement(path: GettablePath): boolean {
+  if (!localStorageAvailable) return false
+
+  c.log('Removing element locally', path)
+  localStorage.removeItem(path[path.length - 1].id)
+  return true
 }
 
 // * ----- local remote save queue -----
 
-function addToRemoteSaveQueue(data: SaveableData) {
+function addToRemoteActionQueue(data: RemoteActionData) {
   const existingQueue = localStorage.getItem(
-    'remoteSaveQueue',
+    'remoteActionQueue',
   )
   const newQueue = existingQueue
     ? JSON.parse(existingQueue)
     : []
   newQueue.push(data)
   localStorage.setItem(
-    'remoteSaveQueue',
+    'remoteActionQueue',
     JSON.stringify(newQueue),
   )
 }
 
-export function setRemoteSaveQueue(setTo: SaveableData[]) {
+export function setRemoteActionQueue(
+  setTo: RemoteActionData[],
+) {
   localStorage.setItem(
-    'remoteSaveQueue',
+    'remoteActionQueue',
     JSON.stringify(setTo),
   )
 }
-export function queueForRemoteSave(
-  data: SaveableData,
+export function queueForRemoteAction(
+  data: RemoteActionData,
 ): boolean {
   if (!localStorageAvailable) return false
 
   c.log('Queueing element for remote save', data)
-  addToRemoteSaveQueue(data)
+  addToRemoteActionQueue(data)
 
   return false
 }
 
-export function getRemoteSaveQueue(): SaveableData[] {
+export function getRemoteActionQueue(): RemoteActionData[] {
   const existingQueue = localStorage.getItem(
-    'remoteSaveQueue',
+    'remoteActionQueue',
   )
   return existingQueue ? JSON.parse(existingQueue) : []
 }

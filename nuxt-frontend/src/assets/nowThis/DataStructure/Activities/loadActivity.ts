@@ -1,4 +1,4 @@
-import * as c from '../../../../../../common'
+import * as c from '~/../../common'
 import { FlashCardActivity } from './FlashCardActivity'
 import { CheckInActivity } from './Prompted/CheckInActivity'
 import { TimedActivity } from './TimedActivity'

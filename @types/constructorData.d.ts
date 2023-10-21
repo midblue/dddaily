@@ -3,7 +3,7 @@ interface EntityConstructorData {
   type: EntityType
   updated?: DateTimeString
   created?: DateTimeString
-  aiPromptCount?: number
+  promptCount?: number
 }
 
 interface ClearableWithXPConstructorData
@@ -15,12 +15,15 @@ interface ClearableWithXPConstructorData
 
 interface UserConstructorData
   extends ClearableWithXPConstructorData {
-  hashedPassword: string
   activityConstructors?: ActivityConstructorData[]
+  activityIdOrder?: string[]
   identityConstructors?: IdentityConstructorData[]
   utcOffset?: number
   bonusActivities?: string[]
   muted?: boolean
+}
+interface UserDbData extends UserConstructorData {
+  hashedPassword: string
 }
 
 interface IdentityConstructorData

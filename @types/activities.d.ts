@@ -13,6 +13,7 @@ interface ActivityConstructorData
   availableEndHour?: number
   relatedIdentityIds?: string[]
   postponeUntilHour?: number | null
+  hsl?: [number, number, number]
 }
 
 interface FlashCardActivityConstructorData
@@ -20,7 +21,7 @@ interface FlashCardActivityConstructorData
   activityType: 'FlashCard'
   averageCardTimeInSeconds?: number
   language?: string
-  cards?: FlashCardConstructorData[]
+  flashCardConstructors?: FlashCardConstructorData[]
 }
 
 interface TimedActivityConstructorData

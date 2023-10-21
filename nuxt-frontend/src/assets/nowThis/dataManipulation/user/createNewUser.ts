@@ -1,4 +1,4 @@
-import * as c from '../../../../../../common'
+import * as c from '~/../../common'
 import bcrypt from 'bcrypt'
 
 export function createNewUserData(data: {
@@ -6,12 +6,9 @@ export function createNewUserData(data: {
   password: string
   utcOffset?: number
 }): UserConstructorData {
-  const hashedPassword = bcrypt.hashSync(data.password, 10)
-
   return {
     type: 'User',
     id: data.id,
-    hashedPassword,
     activityConstructors: [],
     identityConstructors: [],
     utcOffset: data.utcOffset,

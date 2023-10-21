@@ -1,50 +1,58 @@
-import * as c from '../../../../../common'
-import axios from 'axios'
+import * as c from '~/../../common'
 import {
-  getRemoteSaveQueue,
-  queueForRemoteSave,
-  setRemoteSaveQueue,
+  getRemoteActionQueue,
+  queueForRemoteAction,
+  setRemoteActionQueue,
 } from './local'
-
-const remoteUrl = 'http://127.0.0.1:3003/'
+import * as state from '~/assets/nowThis/appState'
 
 let connected = true
-axios
-  .get(remoteUrl)
-  .then(() => {
-    connected = true
-  })
-  .catch(() => {
-    c.l('Could not connect to remote server')
-    connected = false
-  })
 
-if (typeof window !== 'undefined') {
-  connected = window.navigator.onLine
+function addConnectionListeners() {
+  fetch(state.getRemoteUrl())
+    .then(() => {
+      c.l('Connected to remote server.')
+      connected = true
+    })
+    .catch(() => {
+      c.l('Could not connect to remote server.')
+      connected = false
+    })
 
-  window?.addEventListener('offline', () => {
-    connected = false
-  })
+  if (typeof window !== 'undefined') {
+    window?.addEventListener('offline', () => {
+      connected = false
+    })
 
-  window?.addEventListener('online', async () => {
-    await axios
-      .get(remoteUrl)
-      .then(() => {
-        connected = true
-        saveQueuedElementsToRemote()
-      })
-      .catch(() => {
-        c.l('Could not connect to remote server')
-        connected = false
-      })
-  })
+    window?.addEventListener('online', async () => {
+      await fetch(state.getRemoteUrl())
+        .then(() => {
+          connected = true
+          saveQueuedElementsToRemote()
+        })
+        .catch(() => {
+          c.l('Could not connect to remote server')
+          connected = false
+        })
+    })
+  }
 }
+setTimeout(addConnectionListeners, 100)
 
 async function sendElementForRemoteSave(
   data: SaveableData,
 ): Promise<boolean> {
-  const remoteRes = await axios
-    .post(`${remoteUrl}/save/element`, { ...data })
+  const remoteRes = await fetch(
+    `${state.getRemoteUrl()}/addOrUpdate`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: state.getPassword(),
+      },
+      body: JSON.stringify({ ...data }),
+    },
+  )
     .then((res) => {
       console.log(res)
       return true
@@ -58,55 +66,75 @@ async function sendElementForRemoteSave(
   return remoteRes
 }
 
-export async function loadElementFromRemote(
-  id: string,
-  parentPath: { type: EntityType; id: string }[],
-): Promise<EntityConstructorData | null> {
-  // todo single element
-  return null
+export async function loadElementFromRemote<
+  T extends EntityConstructorData,
+>(path: GettablePath): Promise<T | null> {
+  const remoteRes = await fetch(
+    `${state.getRemoteUrl()}/get`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        path,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: state.getPassword(),
+      },
+    },
+  )
+    .then(async (res) => {
+      const json = await res.json()
+      if (!json.id) return null
+      return json as T
+    })
+    .catch((error) => {
+      c.error(
+        error.response?.data || error.message || error,
+      )
+      return null
+    })
+  return remoteRes
 }
 
 export async function loadFullUserDataFromRemote(
   id: string,
-): Promise<UserConstructorData> {
-  // todo not dummy data
-  return {
-    type: 'User',
-    id,
-    hashedPassword: 'test',
-    activityConstructors: [
-      {
-        type: 'Activity',
-        activityType: 'FlashCard',
-        id: c.id('Activity'),
-        name: `New Activity`,
-        clears: c.newClearString(),
-        xp: 0,
-        cards: [
-          {
-            front: 'front',
-            back: 'back',
-            id: c.id('FlashCard'),
-            type: 'FlashCard',
-          },
-        ],
-      } as FlashCardActivityConstructorData,
-    ],
-    identityConstructors: [],
-    utcOffset: 0,
-    bonusActivities: [],
-    muted: false,
-    clears: c.newClearString(),
-    clearFrequencyInDays: 1,
-    xp: 0,
-  }
+): Promise<UserConstructorData | null> {
+  return await loadElementFromRemote<UserConstructorData>([
+    { type: 'User', id },
+  ])
+}
+
+export async function removeElement(path: GettablePath) {
+  const remoteRes = await fetch(
+    `${state.getRemoteUrl()}/remove`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        path,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: state.getPassword(),
+      },
+    },
+  )
+    .then(async (res) => {
+      return (await res.json()).ok
+    })
+    .catch((error) => {
+      c.error(
+        error.response?.data || error.message || error,
+      )
+      return false
+    })
+  return remoteRes
 }
 
 export async function saveElement(
   data: SaveableData,
 ): Promise<boolean> {
   if (!connected) {
-    queueForRemoteSave(data)
+    queueForRemoteAction({ type: 'addOrUpdate', data })
     c.log('Queued element for remote save on reconnect')
     return false
   }
@@ -115,21 +143,25 @@ export async function saveElement(
 }
 
 async function saveQueuedElementsToRemote() {
-  const queuedElements = getRemoteSaveQueue()
-  let failedElements: SaveableData[] = []
+  const queuedElements = getRemoteActionQueue()
+  let failedElements: RemoteActionData[] = []
 
   let queuedElement = queuedElements.shift()
   while (queuedElement) {
-    const succeeded = await sendElementForRemoteSave(
-      queuedElement,
-    )
-    if (!succeeded) {
-      failedElements.push(queuedElement)
-      continue
+    if (queuedElement.type === 'addOrUpdate') {
+      const succeeded = await sendElementForRemoteSave(
+        queuedElement.data,
+      )
+      if (!succeeded) {
+        failedElements.push(queuedElement)
+        continue
+      }
     }
+
+    // todo add delete
 
     queuedElement = queuedElements.shift()
   }
 
-  setRemoteSaveQueue(failedElements)
+  setRemoteActionQueue(failedElements)
 }

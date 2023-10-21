@@ -1,4 +1,4 @@
-import * as c from '../../../../../../common'
+import * as c from '~/../../common'
 import { Activity } from './Activity'
 import { FlashCard } from './FlashCard/FlashCard'
 
@@ -16,8 +16,8 @@ export class FlashCardActivity extends Activity {
       data.averageCardTimeInSeconds || 10
     this.language = data.language
     this.cards = []
-    for (let card of data.cards || []) {
-      this.addCardFromConstructorData(card)
+    for (let cardData of data.flashCardConstructors || []) {
+      this.addCardFromConstructorData(cardData)
     }
   }
 
@@ -33,17 +33,38 @@ export class FlashCardActivity extends Activity {
       averageCardTimeInSeconds:
         this.averageCardTimeInSeconds,
       language: this.language,
-      cards: this.cards.map((card) =>
-        card.getSaveableData(),
-      ),
     }
   }
 
   addCardFromConstructorData(
     data: FlashCardConstructorData,
+    save = false,
   ) {
     const card = new FlashCard(data, this)
     this.cards.push(card)
     card.parent = this
+    if (save) card.save()
+    return card
+  }
+
+  removeCard(card: FlashCard): boolean {
+    const found = this.cards.find((c) => c === card)
+    if (!found) return false
+    this.cards = this.cards.filter((c) => c !== card)
+    card.remove()
+
+    return true
+  }
+
+  get cardsDueToday(): FlashCard[] {
+    return this.cards
+  }
+
+  get estimatedTimeInMinutes(): number {
+    return (
+      (this.averageCardTimeInSeconds *
+        this.cardsDueToday.length) /
+      60
+    )
   }
 }

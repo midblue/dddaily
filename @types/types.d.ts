@@ -1,7 +1,7 @@
 /** YYYY-MM-DD */
 type DateString = `${number}-${number}-${number}`
 /** TT:TT */
-type TimeString = `${number}:${number}`
+type TimeString = `${number}:${number}:${number}.${number}`
 /** YYYY-MM-DDThh:mm */
 type DateTimeString = `${DateString}T${TimeString}`
 /** YYYY-MM-DD_01010101 (0 being not cleared, 1 being cleared) */
@@ -15,5 +15,18 @@ type EntityType =
 
 interface SaveableData {
   elementToSave: EntityConstructorData
-  parentPath: { type: EntityType; id: string }[]
+  parentPath: GettablePath
 }
+
+type GettablePath = { type: EntityType; id: string }[]
+
+type RemoteActionType = 'addOrUpdate' | 'delete'
+type RemoteActionData =
+  | {
+      type: 'addOrUpdate'
+      data: SaveableData
+    }
+  | {
+      type: 'delete'
+      data: GettablePath
+    }

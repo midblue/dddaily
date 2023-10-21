@@ -1,4 +1,4 @@
-import * as c from '../../../../../../../common'
+import * as c from '~/../../common'
 import { Activity } from '../Activity'
 
 export class PromptedActivity extends Activity {

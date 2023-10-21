@@ -1,7 +1,8 @@
-import * as c from '../../../../../common'
+import * as c from '~/../../common'
 import { ClearableWithXP } from './BaseClasses/ClearableWithXP'
 
 export class Identity extends ClearableWithXP {
+  type: EntityType = 'Identity'
   name: string
 
   constructor(

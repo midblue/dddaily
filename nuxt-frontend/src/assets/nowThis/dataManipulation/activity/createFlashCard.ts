@@ -1,4 +1,4 @@
-import * as c from '../../../../../../common'
+import * as c from '~/../../common'
 
 export function createFlashCardData(data: {
   front: string

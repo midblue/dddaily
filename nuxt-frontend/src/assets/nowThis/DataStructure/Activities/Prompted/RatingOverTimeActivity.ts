@@ -1,4 +1,4 @@
-import * as c from '../../../../../../../common'
+import * as c from '~/../../common'
 import { PromptedActivity } from './PromptedActivity'
 
 export class RatingOverTimeActivity extends PromptedActivity {
@@ -22,5 +22,9 @@ export class RatingOverTimeActivity extends PromptedActivity {
       activityType: 'RatingOverTime',
       ratings: this.ratings,
     }
+  }
+
+  get estimatedTimeInMinutes(): number {
+    return 1
   }
 }
