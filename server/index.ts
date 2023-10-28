@@ -1,6 +1,7 @@
 import * as c from '../common'
 
-import './cleanup/dbEmptyFolderCleanup'
+import './upkeep/dbEmptyFolderCleanup'
+import './upkeep/dbBackup'
 
 import express from 'express'
 import bodyParser from 'body-parser'

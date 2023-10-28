@@ -1,9 +1,11 @@
 <template>
   <span class="sub" v-if="el.currentStreak > 0">
-    {{ el.currentStreak }} day streak
+    {{ el.currentStreak }} day
+    {{ fullClear ? 'full clear ' : '' }}streak
   </span>
   <span class="sub" v-else-if="el.currentStreak < -1">
-    {{ el.currentStreak * -1 }} day slump
+    {{ el.currentStreak * -1 }} day
+    {{ fullClear ? 'full clear ' : '' }}slump?
   </span>
   <span
     class="sub"
@@ -13,7 +15,14 @@
     "
   >
     Finish for
-    {{ el.currentStreakNotIncludingToday + 1 }} day streak
+    {{ el.currentStreakNotIncludingToday + 1 }} day
+    {{ fullClear ? 'full clear ' : '' }}streak
+  </span>
+  <span
+    class="sub"
+    v-else-if="el.clearsAsBooleanArray.length === 1"
+  >
+    Let's get started!
   </span>
 
   <span
@@ -70,22 +79,26 @@ import * as c from '~/../../common'
 import type { ClearableWithXP } from '~/assets/nowThis/DataStructure/BaseClasses/ClearableWithXP'
 import * as appState from '~/assets/nowThis/appState'
 
-const { el } = defineProps({
+const { el, fullClear } = defineProps({
   el: {
     type: Object as PropType<ClearableWithXP>,
     required: true,
   },
+  fullClear: {
+    type: Boolean,
+    default: false,
+  },
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .tag {
   background: var(--highlight-l);
   color: var(--highlight);
   font-size: 0.7em;
   font-weight: 600;
   padding: 1px 4px 2px 4px;
-  border-radius: 4px;
+  border-radius: var(--borderRadius);
 
   &.minor {
     background: rgba(150, 150, 150, 0.2);

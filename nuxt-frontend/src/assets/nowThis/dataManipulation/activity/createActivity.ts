@@ -2,21 +2,28 @@ import * as c from '~/../../common'
 
 export function createActivityData<
   T extends ActivityConstructorData & { prompt?: string },
->(data: {
-  activityType: ActivityType
+>({
+  activityType = 'General',
+  name,
+  prompt,
+  maxTimeInMinutes,
+}: {
+  activityType?: ActivityType
   name?: string
   prompt?: string
-}): T {
+  maxTimeInMinutes?: number
+} = {}): T {
   const activityData: ActivityConstructorData & {
     prompt?: string
   } = {
-    ...data,
     type: 'Activity',
+    activityType,
     id: c.id('Activity'),
-    name: data.name || `New ${data.activityType} Activity`,
+    name: name || 'New Activity',
     clears: c.newClearString(),
     xp: 0,
-    prompt: data.prompt,
+    prompt,
+    maxTimeInMinutes,
   }
 
   return activityData as T

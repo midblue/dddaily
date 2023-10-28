@@ -1,5 +1,7 @@
 <template>
-  <button @click="appState.logOut">log out</button>
+  <PageTemplate class="flexcolumn flexcenter gap">
+    <button @click="appState.logOut">log out</button>
+  </PageTemplate>
 </template>
 
 <script setup lang="ts">

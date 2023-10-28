@@ -1,18 +1,21 @@
-type ActivityType =
-  | 'FlashCard'
-  | 'CheckIn'
-  | 'Timed'
-  | 'Journal'
-  | 'RatingOverTime'
+type ActivityType = 'General'
+//'FlashCard' |
+// | 'Journal'
+// | 'RatingOverTime'
 
 interface ActivityConstructorData
   extends ClearableWithXPConstructorData {
   name: string
   activityType: ActivityType
+  lastDone?: DateString | null
   availableStartHour?: number
-  availableEndHour?: number
+  // availableEndHour?: number
   relatedIdentityIds?: string[]
-  postponeUntilHour?: number | null
+  maxTimeInMinutes?: number
+  timeSpentTodayInMs?: number
+  prompt?: string | null
+  skipToday?: boolean
+  postponeUntil?: DateTimeString | null
   hsl?: [number, number, number]
 }
 
@@ -24,34 +27,29 @@ interface FlashCardActivityConstructorData
   flashCardConstructors?: FlashCardConstructorData[]
 }
 
+// * prompted activities
+
+interface CheckInActivityConstructorData
+  extends ActivityConstructorData {
+  activityType: 'CheckIn'
+  // /** same 0101 boolean string as ClearStrings */
+  // checkInSuccesses?: string
+  // checkInFrequencyInDays?: number
+}
+
 interface TimedActivityConstructorData
   extends ActivityConstructorData {
   activityType: 'Timed'
-  allottedMinutes?: number
-  frequency?: 'daily' | 'weekly'
 }
 
-// * prompted activities
+// interface RatingOverTimeActivityConstructorData
+//   extends ActivityConstructorData {
+//   activityType: 'RatingOverTime'
+//   ratings?: [DateTimeString, number][]
+// }
 
-interface PromptedActivityConstructorData
-  extends ActivityConstructorData {
-  prompt: string
-}
-
-interface CheckInActivityConstructorData
-  extends PromptedActivityConstructorData {
-  activityType: 'CheckIn'
-  checkInFrequencyInDays?: number
-}
-
-interface RatingOverTimeActivityConstructorData
-  extends PromptedActivityConstructorData {
-  activityType: 'RatingOverTime'
-  ratings?: [DateTimeString, number][]
-}
-
-interface JournalActivityConstructorData
-  extends PromptedActivityConstructorData {
-  activityType: 'Journal'
-  entries?: [DateTimeString, string][]
-}
+// interface JournalActivityConstructorData
+//   extends ActivityConstructorData {
+//   activityType: 'Journal'
+//   entries?: [DateTimeString, string][]
+// }

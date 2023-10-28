@@ -19,6 +19,7 @@ export function dateToDateTimeString(
   let seconds: any = date.getSeconds()
   if (seconds < 10) seconds = `0${seconds}`
   let milliseconds: any = date.getMilliseconds()
+  if (milliseconds < 100) milliseconds = `00${milliseconds}`
   if (milliseconds < 10) milliseconds = `0${milliseconds}`
   return `${dateString}T${hours}:${minutes}:${seconds}.${milliseconds}`
 }
@@ -39,12 +40,15 @@ export function getUpdatedClearString(
   let newClearString: ClearString = (startDateString +
     '_') as ClearString
   let index = 0
-  let currentDay = new Date(startDateString)
-  while (currentDay.getTime() < new Date().getTime()) {
+  let currentDay = startDateString
+  let now = dateToDateString(new Date())
+  while (currentDay <= now) {
     const clear = clearBoolFlags[index] === '1'
     newClearString += clear ? '1' : '0'
 
-    currentDay = addDaysToDate(currentDay, 1)
+    currentDay = dateToDateString(
+      addDaysToDate(new Date(currentDay), 1),
+    )
     index++
   }
   return newClearString
@@ -73,4 +77,21 @@ export function addDaysToDate(
   const newDateAsMs = dateAsMs + days * 24 * 60 * 60 * 1000
   const newDate = new Date(newDateAsMs)
   return newDate
+}
+
+export function daysBetween(a: Date, b: Date) {
+  const aMs = new Date(a).getTime()
+  const bMs = new Date(b).getTime()
+  const msBetween = Math.abs(aMs - bMs)
+  const daysBetween = Math.floor(
+    msBetween / (1000 * 60 * 60 * 24),
+  )
+  return daysBetween
+}
+
+export function hour24ToHour12(hour24: number): string {
+  if (hour24 === 0) return '12 AM'
+  if (hour24 === 12) return '12 PM'
+  if (hour24 > 12) return `${hour24 - 12} PM`
+  return hour24 + ' AM'
 }

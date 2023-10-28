@@ -1,10 +1,12 @@
 <template>
-  userId:<input v-model="inputUserId" />
-  <br />
-  password: <input v-model="inputPassword" />
-  <br />
-  <button @click="tryLogIn">log in</button>
-  <button @click="trySignUp">sign up</button>
+  <PageTemplate class="flexcolumn flexcenter gap">
+    userId:<input v-model="inputUserId" />
+    <br />
+    password: <input v-model="inputPassword" />
+    <br />
+    <button @click="tryLogIn">log in</button>
+    <button @click="trySignUp">sign up</button>
+  </PageTemplate>
 </template>
 
 <script setup lang="ts">
@@ -55,4 +57,4 @@ async function trySignUp() {
 }
 </script>
 
-<style lang="scss"></style>
+<style lang="scss" scoped></style>

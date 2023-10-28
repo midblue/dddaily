@@ -125,7 +125,7 @@ async function recalcTooltipStyle() {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .tooltipsection {
   pointer-events: none;
   position: fixed;

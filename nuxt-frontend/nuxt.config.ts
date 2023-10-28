@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   telemetry: false,
-  devtools: { enabled: true },
+  // devtools: { enabled: true },
   ssr: false,
   srcDir: 'src/',
   devServer: {
@@ -9,6 +9,9 @@ export default defineNuxtConfig({
   },
   typescript: {
     typeCheck: true,
+  },
+  app: {
+    pageTransition: { name: 'page', mode: 'out-in' },
   },
   css: ['~/assets/css/main.scss'],
 })

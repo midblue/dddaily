@@ -12,7 +12,11 @@ export function createNewUserData(data: {
     activityConstructors: [],
     identityConstructors: [],
     utcOffset: data.utcOffset,
-    bonusActivities: [],
+    bonusActivities: [
+      'take a walk',
+      'read a book',
+      'call your family',
+    ],
     muted: false,
     clears: c.newClearString(),
     clearFrequencyInDays: 1,

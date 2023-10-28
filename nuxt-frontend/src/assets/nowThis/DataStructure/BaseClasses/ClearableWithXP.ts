@@ -7,6 +7,7 @@ export abstract class ClearableWithXP extends Entity {
   /** defaults to 1 */
   clearFrequencyInDays: number = 1
   xp: number = 0
+  xpHistory: XPHistoryEntry[] = []
 
   constructor(
     data: ClearableWithXPConstructorData,
@@ -16,7 +17,8 @@ export abstract class ClearableWithXP extends Entity {
     this.clears = data.clears || c.newClearString()
     this.clearFrequencyInDays =
       data.clearFrequencyInDays || 1
-    this.xp = data.xp
+    this.xp = data.xp || 0
+    this.xpHistory = data.xpHistory || []
   }
 
   get clearStartDay(): DateString {
@@ -46,14 +48,9 @@ export abstract class ClearableWithXP extends Entity {
     }))
   }
 
-  didClearOnDate(date: Date | DateString): boolean {
-    const dateString =
-      date instanceof Date ? c.dateToDateString(date) : date
-    const clears = this.clearsAsDatedBooleanArray
-    const clear = clears.find((c) => c.date === dateString)
-    return clear?.clear || false
-  }
-  existedOnDate(date: Date | DateString): boolean {
+  didExistOnDate(
+    date: Date | DateString = new Date(),
+  ): boolean {
     return (
       this.clearStartDay <=
       (date instanceof Date
@@ -61,6 +58,26 @@ export abstract class ClearableWithXP extends Entity {
         : date)
     )
   }
+  didClearOnDate(
+    date: Date | DateString = new Date(),
+  ): boolean {
+    const dateString =
+      date instanceof Date ? c.dateToDateString(date) : date
+    const clears = this.clearsAsDatedBooleanArray
+    const clear = clears.find((c) => c.date === dateString)
+    return clear?.clear || false
+  }
+  existedOnDate(
+    date: Date | DateString = new Date(),
+  ): boolean {
+    return (
+      this.clearStartDay <=
+      (date instanceof Date
+        ? c.dateToDateString(date)
+        : date)
+    )
+  }
+
   setClearOnDate(
     clear: boolean,
     date: Date | DateString = new Date(),
@@ -79,7 +96,7 @@ export abstract class ClearableWithXP extends Entity {
     this.clears = `${this.clearStartDay}_${clears
       .map((c) => (c.clear ? '1' : '0'))
       .join('')}`
-    this.save()
+    this.save(['clears'])
     if (this.parent) this.parent.bringClearsUpToDate()
   }
 
@@ -90,9 +107,7 @@ export abstract class ClearableWithXP extends Entity {
   bringClearsUpToDate(): void {
     let prevClears = this.clears
     this.clears = c.getUpdatedClearString(this.clears)
-    if (prevClears !== this.clears) {
-      this.save()
-    }
+    if (prevClears !== this.clears) this.save(['clears'])
   }
 
   /** positive for clear streak, negative for fail streak */
@@ -146,6 +161,53 @@ export abstract class ClearableWithXP extends Entity {
     return maxStreak
   }
 
+  get baseXPForClear(): number {
+    return 1
+  }
+  addXp(xp: number): void {
+    this.xp += xp
+    this.save(['xp'])
+    this.updateXPHistory()
+  }
+
+  updateXPHistory(): void {
+    const today = c.dateToDateString()
+    const lastEntry =
+      this.xpHistory[this.xpHistory.length - 1]
+    if (!lastEntry) {
+      this.xpHistory.push([today, this.xp])
+      this.save(['xpHistory'])
+      return
+    }
+    if (lastEntry[1] === this.xp) return
+    if (lastEntry[0] === today) {
+      lastEntry[1] = this.xp
+    } else {
+      this.xpHistory.push([today, this.xp])
+    }
+    this.save(['xpHistory'])
+  }
+
+  get level(): number {
+    return c.xpToLevel(this.xp)
+  }
+  get levelProgress(): number {
+    return c.levelProgress(this.xp)
+  }
+  get totalXpInCurrentLevel(): number {
+    return c.totalXPInLevel(this.level)
+  }
+
+  get xpGainMultiplier(): number {
+    if (this.currentStreak <= 1) return 1
+    if (this.currentStreak <= 5) return 2
+    if (this.currentStreak < 50) return 3
+    if (this.currentStreak < 100) return 4
+    if (this.currentStreak < 200) return 5
+    if (this.currentStreak < 365) return 6
+    return 7
+  }
+
   dailyReset(): void {
     this.bringClearsUpToDate()
     super.dailyReset()
@@ -161,6 +223,7 @@ export abstract class ClearableWithXP extends Entity {
       clears: this.clears,
       clearFrequencyInDays: this.clearFrequencyInDays,
       xp: this.xp,
+      xpHistory: this.xpHistory,
     }
   }
 }

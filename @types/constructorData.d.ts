@@ -5,12 +5,17 @@ interface EntityConstructorData {
   created?: DateTimeString
   promptCount?: number
 }
+interface EntityDbData extends EntityConstructorData {
+  localVersion: number
+  updated: DateTimeString
+}
 
 interface ClearableWithXPConstructorData
   extends EntityConstructorData {
   clears: ClearString
   clearFrequencyInDays?: number
   xp: number
+  xpHistory?: XPHistoryEntry[]
 }
 
 interface UserConstructorData
@@ -29,4 +34,5 @@ interface UserDbData extends UserConstructorData {
 interface IdentityConstructorData
   extends ClearableWithXPConstructorData {
   name: string
+  relatedActivityIds?: string[]
 }

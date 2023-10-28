@@ -1,5 +1,5 @@
 <template>
-  <div class="clearDots martopsmall">
+  <div class="clearDots">
     <span
       v-for="(
         datedBool, index
@@ -9,9 +9,26 @@
         today: index === 0,
         didClear: datedBool.clear,
       }"
-      @click="
+      @click.prevent.stop="
         el.setClearOnDate(!datedBool.clear, datedBool.date)
       "
+      v-tooltip="
+        `${new Date(datedBool.date).toLocaleDateString(
+          'en-US',
+          {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+          },
+        )}: ${datedBool.clear ? 'cleared' : 'not cleared'}`
+      "
+    >
+      <span class="visibleDot"></span>
+    </span>
+    <span
+      v-if="clearsAsDatedBooleanArrayReversed.length < 30"
+      v-for="dummy in 30"
+      class="clearDot dummy"
     >
       <span class="visibleDot"></span>
     </span>
@@ -39,7 +56,7 @@ const clearsAsDatedBooleanArrayReversed = computed(() => {
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .clearDots {
   display: flex;
   align-items: center;
@@ -61,6 +78,7 @@ const clearsAsDatedBooleanArrayReversed = computed(() => {
     height: 100%;
     background: var(--highlight, rgba(0, 0, 0, 0.5));
     flex-shrink: 0;
+    border-radius: 100px;
   }
 
   &:not(.didClear) {
@@ -76,6 +94,12 @@ const clearsAsDatedBooleanArrayReversed = computed(() => {
     width: 14px;
     height: 12px;
     padding-right: 2px;
+  }
+
+  &.dummy {
+    width: 10px;
+    height: 10px;
+    padding: 3.5px 3.5px;
   }
 }
 </style>

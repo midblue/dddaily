@@ -27,15 +27,34 @@ routes.post('/', async (req, res) => {
   const existingData = await db.getWithoutChildren(
     c.saveableDataToGettablePath(saveableData),
   )
+  c.log({ existingData })
 
   const add = !existingData
+  if (existingData && !existingData.id) {
+    c.log('red', 'Invalid existingData', existingData)
+    res.status(400).json({ message: 'Invalid' })
+    return
+  }
+  if (
+    existingData?.updated ===
+    saveableData.elementToSave.updated
+  ) {
+    c.log(
+      'red',
+      'Received timestamp match',
+      saveableData.elementToSave,
+    )
+  }
 
   // * check if server-side data is newer than incoming data
   // * bias towards incoming data if newer
+  let dataToSave: SaveableData['elementToSave'] = {
+    ...saveableData.elementToSave,
+  }
   if (!add) {
-    saveableData.elementToSave = c.mergeByRecency(
+    dataToSave = c.mergeByRecency(
       saveableData.elementToSave,
-      existingData as EntityConstructorData,
+      existingData as EntityDbData,
     )
   }
 
@@ -45,9 +64,7 @@ routes.post('/', async (req, res) => {
       res.status(401).json({ message: 'Invalid' })
       return
     }
-    ;(
-      saveableData.elementToSave as UserDbData
-    ).hashedPassword = bcrypt.hashSync(
+    ;(dataToSave as any).hashedPassword = bcrypt.hashSync(
       req.headers.authorization as string,
       10,
     )
@@ -57,11 +74,13 @@ routes.post('/', async (req, res) => {
     c.log(
       'gray',
       add ? 'Adding' : 'Updating',
-      saveableData.elementToSave.type,
-      saveableData.elementToSave.id,
       saveableData.elementToSave,
+      { existingData, dataToSave },
     )
-    db.set(saveableData)
+    db.set({
+      elementToSave: dataToSave,
+      parentPath: saveableData.parentPath,
+    })
     res.json({ ok: true })
   } catch (e) {
     res

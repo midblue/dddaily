@@ -59,7 +59,8 @@
         "height": 900,
         "resizable": true,
         "title": "Now, This",
-        "width": 350
+        "width": 350,
+        "titleBarStyle": "Transparent"
       }
     ]
   }

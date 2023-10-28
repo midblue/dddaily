@@ -123,16 +123,14 @@ export function trace(
   message?: any,
   ...optionalParams: any[]
 ) {
-  if (message)
-    log(
-      message,
-      ...optionalParams,
-      `\n  Trace: `,
-      `${new Error().stack}`
-        .replace(/^.*\n.*\n/, ``)
-        .trim()
-        .replace(/^at /, ``),
-    )
+  log(
+    ...[message, ...optionalParams],
+    `\n  Trace: `,
+    `${new Error().stack}`,
+    // .replace(/^.*\n.*\n/, ``)
+    // .trim()
+    // .replace(/^at /, ``),
+  )
 }
 
 export function error(...args: any[]) {

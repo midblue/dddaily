@@ -1,118 +1,160 @@
 <template>
-  <div v-if="user">
-    <template
-      v-for="activity in orderedActivities"
-      :key="activity.id"
-    >
-      <div
-        :style="{
-          '--highlight': activity.hslString(),
-          '--highlight-l': activity.hslString(0.2),
-        }"
-        class="activity"
-      >
+  <div>
+    <div v-if="user">
+      <div class="activityzone">
         <div
-          class="bgHighlight"
-          :class="{ strong: activity.progressToday < 1 }"
-        ></div>
-        <div>
-          <nuxt-link
-            :to="`/activity/${activity.id}`"
-            class="highlight"
+          class="dragContainer"
+          v-for="(activity, index) in orderedActivities"
+          :key="activity.id"
+          :class="{
+            dragMode: tempShiftIndex !== -1,
+            shiftUp:
+              tempShiftIndex !== -1 &&
+              index > tempShiftIndex &&
+              index <= tempShiftIndex + tempShiftAmount,
+            shiftDown:
+              tempShiftIndex !== -1 &&
+              index < tempShiftIndex &&
+              index >= tempShiftIndex + tempShiftAmount,
+          }"
+        >
+          <HomeActivity
+            :activity="activity"
+            @tempShift="tempShift"
+            @resetTempShift="resetTempShift"
+          />
+        </div>
+
+        <div class="marLR martopbig marbotbig padbot">
+          <div
+            class="button big invert primary"
+            @click="newActivity"
+            style="background: var(--bg-d)"
           >
-            {{ activity.name }}
-          </nuxt-link>
-          <span class="sub marleft">{{
-            c.activityTypeLabels[activity.activityType]
-          }}</span>
+            <div class="flexcenter gapsmall">
+              <img class="icon 07" src="/icons/plus.svg" />
+              New Activity
+            </div>
+          </div>
         </div>
-        <div class="flex flexverticalcenter gap">
-          <ClearText :el="activity" />
-        </div>
-        <ClearDots :el="activity" />
-
-        <!-- <div class="small">
-            <button @click="user.removeActivity(activity)">
-              remove activity
-            </button>
-            <button
-              @click="user.moveActivity(activity, -1)"
-            >
-              move up
-            </button>
-            <button @click="user.moveActivity(activity, 1)">
-              move down
-            </button>
-          </div> -->
       </div>
-    </template>
 
-    <nuxt-link
-      class="button big invert"
-      to="/activity/new"
-      style="background: var(--bg-d)"
-    >
-      New Activity
-    </nuxt-link>
+      <div class="identityzone padtopbig">
+        <div
+          class="marRL big bold martop marbot"
+          v-if="user.identities.length"
+        >
+          Identity Goals
+        </div>
+
+        <div
+          v-for="(identity, index) in user.identities.sort(
+            (a, b) => b.xp - a.xp,
+          )"
+        >
+          <!-- <hr v-if="index !== 0" /> -->
+          <HomeIdentity :identity="identity" />
+        </div>
+
+        <div class="marLR martop">
+          <div
+            class="button big invert primary"
+            @click="newIdentity"
+          >
+            <div class="flexcenter gapsmall">
+              <img class="icon 07" src="/icons/plus.svg" />
+              New Identity Goal
+            </div>
+          </div>
+        </div>
+
+        <template v-if="user.identities.length === 0">
+          <!-- <HomeIdentity :demo="true" /> -->
+
+          <div
+            class="flex marLR padleftbig padrightbig gapsmall martop"
+          >
+            <img
+              class="icon o4"
+              src="/icons/question.svg"
+            />
+            <div class="sub marnone padnone">
+              <span class="bold">Identity Goals</span> track
+              your progress towards who you want to be.
+              Every activity you complete is a "vote"
+              towards you being a Healthy Person, or a
+              Polyglot, or an Engineer, or a Musician, etc.
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <HomeFooter />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import * as c from '~/../../common'
 import * as appState from '~/assets/nowThis/appState'
-import { FlashCardActivity } from '~/assets/nowThis/DataStructure/Activities/FlashCardActivity'
 import { createActivityData } from '~/assets/nowThis/dataManipulation/activity/createActivity'
-import { createFlashCardData } from '~/assets/nowThis/dataManipulation/activity/createFlashCard'
-import type { Activity } from '~/assets/nowThis/DataStructure/Activities/Activity'
+import { createIdentityData } from '~/assets/nowThis/dataManipulation/activity/createIdentity'
 
 const user = appState.currentUser
 
 const orderedActivities = computed(() => {
-  return user.value?.activityIdOrder
-    .map((id) => {
-      return user.value?.activities.find((a) => a.id === id)
-    })
-    .filter((a) => a) as Activity[]
+  return user.value?.orderedActivities || []
 })
 
-function addFlashCard(activity: FlashCardActivity) {
-  activity.addCardFromConstructorData(
-    createFlashCardData({
-      front: 'from frontend',
-      back: 'asdf',
-    }),
-    true,
-  )
+const tempShiftIndex = ref<number>(-1)
+const tempShiftAmount = ref<number>(-1)
+function tempShift(elementIndex: number, to: number) {
+  tempShiftIndex.value = elementIndex
+  tempShiftAmount.value = to
+}
+function resetTempShift() {
+  tempShiftIndex.value = -1
+  tempShiftAmount.value = -1
+}
+
+function newActivity() {
+  const newActivity =
+    user.value?.addActivityFromConstructorData(
+      createActivityData(),
+      true,
+    )
+  if (!newActivity) return
+
+  useRouter().push(`/activity/settings/${newActivity.id}`)
+}
+
+function newIdentity() {
+  const newIdentity =
+    user.value?.addIdentityFromConstructorData(
+      createIdentityData({
+        name: 'New Identity Goal',
+      }),
+      true,
+    )
+  if (!newIdentity) return
+
+  useRouter().push(`/identity/settings/${newIdentity.id}`)
 }
 </script>
 
-<style lang="scss">
-.activity {
-  position: relative;
-  padding: 1rem var(--pagePadLr);
+<style lang="scss" scoped>
+.dragMode {
+  transition: transform 0.2s ease-in-out;
+}
+.shiftUp {
+  transform: translateY(-100%);
+}
+.shiftDown {
+  transform: translateY(100%);
+}
 
-  .bgHighlight {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0.15;
-    background: linear-gradient(
-      120deg,
-      var(--highlight) 0%,
-      transparent 10%
-    );
-    z-index: -1;
-
-    &.strong {
-      opacity: 0.3;
-      background: linear-gradient(
-        120deg,
-        var(--highlight) 0%,
-        transparent 40%
-      );
-    }
-  }
+.identityzone {
+  background: var(--bg-d2);
+  padding-bottom: 30vh;
 }
 </style>

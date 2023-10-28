@@ -2,16 +2,22 @@
  *  returns first object if both objects have the same updated date
  */
 export function mergeByRecency(
-  a: EntityConstructorData,
-  b: EntityConstructorData,
-): EntityConstructorData {
-  if (a.updated === b.updated) return a
-
-  const moreRecent =
-    new Date(a.updated || 0).getTime() >
-    new Date(b.updated || 0).getTime()
-      ? a
-      : b
+  a: SaveableData['elementToSave'],
+  b: SaveableData['elementToSave'],
+): SaveableData['elementToSave'] {
+  let moreRecent: SaveableData['elementToSave']
+  if (a.updated === b.updated) {
+    console.log(
+      'resolving conflict by localVersion',
+      a.localVersion,
+      b.localVersion,
+    )
+    if ((a.localVersion || 0) > (b.localVersion || 0))
+      moreRecent = a
+    else moreRecent = b
+  } else if ((a.updated || '0') > (b.updated || '0'))
+    moreRecent = a
+  else moreRecent = b
 
   const lessRecent = moreRecent === a ? b : a
   const merged = { ...lessRecent, ...moreRecent }

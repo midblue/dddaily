@@ -10,10 +10,11 @@ export abstract class Entity {
   abstract type: EntityType
   updated: DateTimeString
   created: DateTimeString
-  promptCount: number
+  // promptCount: number
   parent: any
 
   private awaitingSave: boolean = false
+  private localVersion: number = 1
 
   constructor(
     data: EntityConstructorData,
@@ -25,7 +26,7 @@ export abstract class Entity {
       data.created ||
       c.dateToDateTimeString()
     this.created = data.created || c.dateToDateTimeString()
-    this.promptCount = data.promptCount || 0
+    // this.promptCount = data.promptCount || 0
     this.parent = parent
   }
 
@@ -39,7 +40,7 @@ export abstract class Entity {
       type: this.type,
       updated: this.updated,
       created: this.created,
-      promptCount: this.promptCount,
+      // promptCount: this.promptCount,
     }
   }
 
@@ -62,15 +63,36 @@ export abstract class Entity {
     ]
   }
 
-  async save<T>(): Promise<void> {
+  async save(keys?: (keyof this)[]): Promise<void> {
+    c.log(
+      'gray',
+      'save',
+      keys,
+      this.constructor.name,
+      this.id,
+    )
+
     let updatedDate = new Date()
-    while (this.awaitingSave) await c.sleep(100)
-    if (this.updated > c.dateToDateTimeString(updatedDate))
-      return
     this.updated = c.dateToDateTimeString(updatedDate)
 
+    while (this.awaitingSave) await c.sleep(100)
+
     this.awaitingSave = true
-    const dataToSave = this.getSaveableData()
+    const dataToSave =
+      this.getSaveableData() as SaveableData['elementToSave']
+
+    if (keys) {
+      for (let key of Object.keys(dataToSave)) {
+        if (!keys.includes(key as keyof this)) {
+          delete dataToSave[key]
+        }
+      }
+    }
+
+    dataToSave.id = this.id
+    dataToSave.type = this.type
+    dataToSave.updated = c.dateToDateTimeString(updatedDate)
+    dataToSave.localVersion = this.localVersion++
 
     const saveRes = await saveElement({
       elementToSave: dataToSave,

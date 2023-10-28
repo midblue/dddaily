@@ -14,7 +14,12 @@ type EntityType =
   | 'FlashCard'
 
 interface SaveableData {
-  elementToSave: EntityConstructorData
+  elementToSave: Partial<EntityConstructorData> & {
+    type: EntityType
+    id: string
+    updated: DateTimeString
+    localVersion: number
+  }
   parentPath: GettablePath
 }
 
@@ -30,3 +35,5 @@ type RemoteActionData =
       type: 'delete'
       data: GettablePath
     }
+
+type XPHistoryEntry = [DateString, number]
