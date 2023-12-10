@@ -10,9 +10,13 @@ const maxBackups = 30
 
 async function backUp() {
   c.log('blue', 'Backing up data')
+  const startTimestamp = Date.now()
 
   if (!fs.existsSync(backupPath)) {
     fs.mkdirSync(backupPath)
+  }
+  if (!fs.existsSync(dataPath)) {
+    fs.mkdirSync(dataPath)
   }
 
   const backups = await fs.promises.readdir(backupPath, {
@@ -46,6 +50,11 @@ async function backUp() {
     })
   }
   await copyDirDeep(dataPath, backupFolder)
+
+  c.log(
+    'blue',
+    `Backup complete in ${Date.now() - startTimestamp}ms`,
+  )
 }
 
 async function copyDirDeep(src: string, dest: string) {

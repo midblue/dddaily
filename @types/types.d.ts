@@ -4,15 +4,58 @@ type DateString = `${number}-${number}-${number}`
 type TimeString = `${number}:${number}:${number}.${number}`
 /** YYYY-MM-DDThh:mm */
 type DateTimeString = `${DateString}T${TimeString}`
-/** YYYY-MM-DD_01010101 (0 being not cleared, 1 being cleared) */
-type ClearString = `${DateString}_${string}`
 
-type EntityType =
-  | 'User'
-  | 'Activity'
-  | 'Identity'
-  | 'FlashCard'
+type Clear = 0 | 1
+type DatedResults = {
+  date: DateString
+  /** 0-1 */
+  mood?: number
+  /** 0-1 */
+  energy?: number
+  maxEffort?: number
+  acceptableEffort?: number
+  effortExpended?: number
+  clears: {
+    [activityId: string]: Clear
+  }
+  backupActivityIds?: string[]
+}[]
 
+type EntityType = 'User' | 'Activity' | 'Identity'
+
+interface EntityConstructorData {
+  id: string
+  type: EntityType
+  updated?: DateTimeString
+  created?: DateTimeString
+}
+interface EntityDbData extends EntityConstructorData {
+  localVersion: number
+  updated: DateTimeString
+}
+
+interface UserConstructorData
+  extends EntityConstructorData {
+  clears: DatedResults
+  activityConstructors?: ActivityConstructorData[]
+  activityIdOrder?: string[]
+}
+interface UserDbData extends UserConstructorData {
+  hashedPassword: string
+}
+
+interface ActivityConstructorData
+  extends EntityConstructorData {
+  name: string
+  timer?: number | null
+  effortRequired?: number
+  moodLowLimit?: number
+  moodHighLimit?: number
+  dayInterval?: number
+  exact?: boolean
+}
+
+type GettablePath = { type: EntityType; id: string }[]
 interface SaveableData {
   elementToSave: Partial<EntityConstructorData> & {
     type: EntityType
@@ -22,18 +65,3 @@ interface SaveableData {
   }
   parentPath: GettablePath
 }
-
-type GettablePath = { type: EntityType; id: string }[]
-
-type RemoteActionType = 'addOrUpdate' | 'delete'
-type RemoteActionData =
-  | {
-      type: 'addOrUpdate'
-      data: SaveableData
-    }
-  | {
-      type: 'delete'
-      data: GettablePath
-    }
-
-type XPHistoryEntry = [DateString, number]

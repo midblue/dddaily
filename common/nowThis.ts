@@ -1,9 +1,4 @@
-import e from 'express'
-
-export const activityTypeLabels: Record<string, string> = {
-  General: 'Activity',
-  CheckIn: 'Check-In',
-}
+import * as date from './date'
 
 export const colors: [number, number, number][] = [
   [3, 73, 58],
@@ -24,33 +19,30 @@ export const colors: [number, number, number][] = [
   [348, 97, 69],
 ]
 
-export const levels: number[] = []
-for (let i = 0; i < 2000; i++) {
-  levels.push(40 * i * (i / 2))
-}
-
-export function xpToLevel(xp: number) {
-  let level = 0
-  for (let i = 0; i < levels.length; i++) {
-    if (xp < levels[i]) {
-      break
+export function getUpdatedClears(
+  oldClears: DatedResults,
+): DatedResults {
+  const startDateString =
+    oldClears?.[0]?.date ||
+    date.dateToDateString(
+      date.addDaysToDate(new Date(), -1),
+    )
+  const newClears: DatedResults = []
+  let currentDate = startDateString
+  const today = date.dateToDateString()
+  while (currentDate <= today) {
+    const dateString = currentDate
+    const oldClear = oldClears.find(
+      (c) => c.date === dateString,
+    )
+    if (oldClear) {
+      newClears.push(oldClear)
+    } else {
+      newClears.push({ date: dateString, clears: {} })
     }
-    level++
+    currentDate = date.dateToDateString(
+      date.addDaysToDate(currentDate, 1),
+    )
   }
-  return level
-}
-
-export function levelToXp(level: number) {
-  return levels[level - 1]
-}
-
-export function levelProgress(xp: number) {
-  const level = xpToLevel(xp)
-  return (
-    (xp - levels[level - 1]) /
-    (levels[level] - levels[level - 1])
-  )
-}
-export function totalXPInLevel(level: number) {
-  return levels[level] - (levels[level - 1] || 0)
+  return newClears
 }

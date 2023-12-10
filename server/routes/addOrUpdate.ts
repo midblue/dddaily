@@ -27,7 +27,7 @@ routes.post('/', async (req, res) => {
   const existingData = await db.getWithoutChildren(
     c.saveableDataToGettablePath(saveableData),
   )
-  c.log({ existingData })
+  // c.log({ existingData })
 
   const add = !existingData
   if (existingData && !existingData.id) {
@@ -75,7 +75,7 @@ routes.post('/', async (req, res) => {
       'gray',
       add ? 'Adding' : 'Updating',
       saveableData.elementToSave,
-      { existingData, dataToSave },
+      // { existingData, dataToSave },
     )
     db.set({
       elementToSave: dataToSave,

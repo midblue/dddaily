@@ -12,6 +12,10 @@ function cleanUp() {
   const emptyFolders = new Set<string>()
 
   function scan(folderPath: string) {
+    const exists = fs.existsSync(folderPath)
+    if (!exists) {
+      return
+    }
     const files = fs.readdirSync(folderPath)
     if (files.length === 0) {
       emptyFolders.add(folderPath)
