@@ -7,7 +7,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "nowthis-tauri-frontend",
+    "productName": "dddaily-tauri-frontend",
     "version": "0.1.0"
   },
   "tauri": {
@@ -29,7 +29,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.nowthis.dev",
+      "identifier": "com.dddaily.dev",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -58,7 +58,7 @@
         "fullscreen": false,
         "height": 900,
         "resizable": true,
-        "title": "Now, This",
+        "title": "DDDaily",
         "width": 350,
         "titleBarStyle": "Transparent"
       }

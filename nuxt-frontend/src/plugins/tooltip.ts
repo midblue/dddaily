@@ -1,5 +1,5 @@
 import * as c from '~/../../common'
-import { tooltip } from '~/assets/nowThis/appState'
+import { tooltip } from '~/assets/app/appState'
 
 export default defineNuxtPlugin((app) => {
   app.vueApp.directive(`tooltip`, {

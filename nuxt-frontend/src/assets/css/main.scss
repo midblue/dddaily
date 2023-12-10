@@ -1,46 +1,22 @@
 @import './normalize.css';
 
-@font-face {
-  font-family: 'Tomorrow';
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: url('./fonts/Tomorrow-Light.ttf') format('truetype');
-}
-@font-face {
-  font-family: 'Tomorrow';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('./fonts/Tomorrow-Regular.ttf')
-    format('truetype');
-}
-@font-face {
-  font-family: 'Tomorrow';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('./fonts/Tomorrow-Medium.ttf') format('truetype');
-}
-// @font-face {
-//   font-family: 'Tomorrow';
-//   font-style: normal;
-//   font-weight: 900;
-//   font-display: swap;
-//   src: url('./fonts/Tomorrow-Bold.ttf') format('truetype');
-// }
+// @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&display=swap');
 
 :root {
-  --font-stack: 'Tomorrow', 'Helvetica', 'Noto Color Emoji',
-    'Noto Emoji', 'Yu Gothic', 'YuGothic', sans-serif;
+  --font-stack: 'Balsamiq Sans', 'Helvetica',
+    'Noto Color Emoji', 'Noto Emoji', 'Yu Gothic',
+    'YuGothic', sans-serif;
   --mainBg: #fff;
   --text: #222;
-  --text-l: #aaa;
+  --textL: #aaa;
+  --textL2: #ccc;
   --bg: #fff;
-  --bg-d: #f4f4f4;
-  --bg-d2: #eee;
+  --bgD: #f4f4f4;
+  --bgD2: #eee;
   --warning: rgb(234, 109, 78);
   --borderRadius: 3px;
+  --highlight: lightgreen;
 
   --pagePadLr: 1.5rem;
 }
@@ -55,7 +31,7 @@ html {
   background: var(--mainBg);
   user-select: none;
 
-  font-size: 15px;
+  font-size: 18px;
   line-height: 1.6;
   font-weight: 300;
   font-family: var(--font-stack);
@@ -158,13 +134,13 @@ img {
 .clickableIconHolder {
   cursor: pointer;
   position: relative;
-  width: 2em;
-  height: 2em;
-  padding: 0.5em;
+  width: 1.8em;
+  height: 1.8em;
+  padding: 0.45em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin: 0 0.2em 0 0;
+  margin: 0;
   line-height: 0;
 
   &:hover {
@@ -254,7 +230,7 @@ textarea {
   font-weight: 300;
   color: var(--text);
   background: var(--bg);
-  box-shadow: 0 1px 0 var(--text-l);
+  box-shadow: 0 1px 0 var(--textL);
   border: none;
   border-radius: 0;
   padding: 0.5rem 0 0.5rem 0;
@@ -263,11 +239,11 @@ textarea {
   width: 100%;
 
   &:focus {
-    box-shadow: 0 1px 0 var(--highlight, var(--text-l));
+    box-shadow: 0 1px 0 var(--highlight, var(--textL));
   }
 
   &::placeholder {
-    color: var(--text-l);
+    color: var(--textL);
   }
 }
 .labeledinput {
@@ -279,7 +255,7 @@ input[type='range'] {
   height: 0;
   padding: 0.5px;
   outline: none;
-  background: var(--text-l);
+  background: var(--textL);
   border: 0;
   box-shadow: none;
 
@@ -292,6 +268,24 @@ input[type='range'] {
     cursor: pointer;
     border-radius: 50%;
   }
+}
+
+kbd {
+  font-family: var(--font-stack);
+  display: inline-block;
+  border: 1px solid rgba(black, 0.3);
+  background: rgba(black, 0.05);
+  color: rgba(black, 0.7);
+  text-transform: uppercase;
+  line-height: 1;
+  font-weight: 600;
+  font-size: 0.7em;
+  padding: 2px 2px;
+  text-align: center;
+  min-width: 14px;
+  border-radius: 4px;
+  box-shadow: 0 2px 0px rgba(black, 0.2);
+  margin-bottom: 2px;
 }
 
 .grid2 {
@@ -330,6 +324,10 @@ input[type='range'] {
 .gapbig {
   grid-gap: 2rem;
   gap: 2rem;
+}
+.gapbig2 {
+  grid-gap: 4rem;
+  gap: 4rem;
 }
 .gapsmall {
   grid-gap: 0.5rem;
@@ -410,15 +408,36 @@ input[type='range'] {
 .fullwidth {
   width: 100%;
 }
+.windowheight {
+  height: 100vh;
+}
+.windowwidth {
+  width: 100vw;
+}
+
+*:disabled,
+.disabled {
+  --buttonColor: rgba(255, 255, 255, 0.5);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 button,
 .button {
+  --textColor: white;
+
   &:not(.primary) {
-    --buttonColor: #aaa;
+    --buttonColor: var(--text);
   }
 
   &.primary {
     --buttonColor: var(--highlight, #555);
+    --textColor: var(--text);
+  }
+
+  &.secondary {
+    --buttonColor: var(--bgD2);
+    --textColor: var(--text);
   }
 
   &.warning {
@@ -427,19 +446,19 @@ button,
 
   border: none;
   background: var(--buttonColor);
-  color: white !important;
+  color: var(--textColor) !important;
   font-weight: 500;
   cursor: pointer;
   outline: none;
-  padding: 0.6em 1.5em;
+  padding: 0.6em 1.5em 0.5em 1.5em;
   border-radius: var(--borderRadius);
   font-size: 1em;
-  line-height: 1.2;
+  line-height: 1;
   font-weight: 500;
   font-family: var(--font-stack);
   text-align: center;
   text-decoration: none !important;
-  transition: all 0.15s ease-in-out;
+  // transition: all 0.15s ease-in-out;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -447,6 +466,10 @@ button,
   margin: 2px;
   margin-left: 0;
   margin-top: 0;
+
+  &:last-child {
+    margin-right: 0;
+  }
 
   &.iconbutton {
     width: 45px;
@@ -458,18 +481,12 @@ button,
   }
 
   &.invert {
-    background: white;
+    background: var(--textColor) !important;
     color: var(--buttonColor) !important;
   }
 
-  &:hover {
+  &:hover:not(:disabled) {
     filter: brightness(0.9);
-  }
-
-  &:disabled {
-    filter: brightness(0.8);
-    color: rgba(255, 255, 255, 0.5);
-    cursor: not-allowed;
   }
 
   &.big {
@@ -481,7 +498,13 @@ button,
 
   &.small {
     font-size: 1em;
-    padding: 0.4em 0.8em;
+    padding: 0.2em 0.8em;
+    font-weight: 400;
+  }
+
+  &.mini {
+    font-size: 1em;
+    padding: 0.2em 0.4em;
     font-weight: 400;
   }
 }
@@ -537,6 +560,9 @@ button,
 }
 .flexshrink {
   flex-shrink: 1;
+}
+.nogrow {
+  flex-grow: 0;
 }
 
 .padnone,

@@ -7,7 +7,6 @@ interface CustomRouter extends Router {
 
 export default defineNuxtPlugin((nuxtApp) => {
   const customRouter: CustomRouter = useNuxtApp().$router
-
   nuxtApp.hook('page:start', () => {
     customRouter.running = false
     customRouter.beforeEach((to, _from, next) => {

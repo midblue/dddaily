@@ -1,5 +1,5 @@
 <template>
-  <div class="pageTemplate fullheight">
+  <div class="pageTemplate fullheight flexcolumn">
     <slot />
   </div>
 </template>
@@ -11,6 +11,10 @@
 
   .maincontent {
     flex-grow: 1;
+  }
+
+  & > * {
+    flex: 1;
   }
 }
 </style>

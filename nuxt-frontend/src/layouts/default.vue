@@ -20,14 +20,16 @@
     }"
   >
     <InfoTooltip />
-    <HeaderBar />
-    <slot />
+
+    <div class="marauto" style="max-width: 350px">
+      <slot />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import * as c from '~/../../common'
-import * as appState from '~/assets/nowThis/appState'
+import * as appState from '~/assets/app/appState'
 
 onMounted(async () => {
   updateWindowSizeVars()
@@ -36,7 +38,7 @@ onMounted(async () => {
   window.addEventListener('focus', onWindowFocus)
 
   window.addEventListener('click', onWindowInteract)
-  window.addEventListener('mousemove', onWindowInteract)
+  // window.addEventListener('mousemove', onWindowInteract)
   window.addEventListener('keydown', onWindowInteract)
   window.addEventListener('blur', onWindowBlur)
 
@@ -55,14 +57,26 @@ function updateWindowSizeVars() {
 }
 
 function onWindowFocus() {
+  // c.log('window focus')
   appState.lastUserInteractionTimestampMs.value = Date.now()
   appState.windowIsFocused.value = true
   passiveReset()
 }
 function passiveReset() {
+  // c.log(
+  //   'passive reset',
+  //   appState.userIsProbablyActivelyUsingApp(),
+  //   c.msToTimeString(
+  //     Date.now() -
+  //       appState.lastUserInteractionTimestampMs.value,
+  //   ),
+  // )
   appState.currentUser.value?.passiveReset()
+  if (!appState.currentUser.value?.today?.energy)
+    useRouter().replace(`/`)
 }
 function onWindowInteract() {
+  // c.log('interact')
   appState.lastUserInteractionTimestampMs.value = Date.now()
 }
 function onWindowBlur() {
@@ -83,32 +97,12 @@ onBeforeUnmount(() => {
 })
 
 function keyListener(e: KeyboardEvent) {
-  if ((e.target as HTMLElement)?.tagName === 'INPUT') return
-
-  if (useRoute().path.includes('/activity')) {
-    if (e.key === 'ArrowLeft') {
-      if (appState.previousActivity.value) {
-        useRouter().push(
-          `/activity/${appState.previousActivity.value.id}`,
-        )
-      }
-    }
-    if (e.key === 'ArrowRight') {
-      if (appState.nextActivity.value) {
-        useRouter().push(
-          `/activity/${appState.nextActivity.value.id}`,
-        )
-      }
-    }
-
-    if (!useRoute().path.includes('/settings')) {
-      if (e.key === 's') {
-        useRouter().push(
-          `/activity/settings/${appState.currentActivity.value?.id}`,
-        )
-      }
-    }
-  }
+  if (
+    ['INPUT', 'TEXTAREA', 'SELECT'].includes(
+      (e.target as HTMLElement)?.tagName,
+    )
+  )
+    return
 }
 </script>
 
