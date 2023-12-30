@@ -377,20 +377,30 @@ export class User extends Entity {
   }
 
   addActivityOnDay(day = new Date()): boolean {
+    c.log('addActivityOnDay')
     const results = this.getResultsForDay(
       c.dateToDateString(day),
     )
     if (!results) return false
-    const nextOptionalActivity = this.getActivityById(
+    let nextOptionalActivity = this.getActivityById(
       results.backupActivityIds?.[0],
     )
+    if (!nextOptionalActivity) {
+      // * if there's no backup activity, just pick a random one that we don't already have
+      const existing = this.getActivitiesForDay(day)
+      const remaining = this.activities.filter(
+        (a) => !existing.includes(a),
+      )
+      if (!remaining.length) return false
+      nextOptionalActivity = c.randomFromArray(remaining)
+    }
     if (!nextOptionalActivity) return false
 
     results.clears[nextOptionalActivity.id] = 0
 
     results.backupActivityIds = (
       results.backupActivityIds || []
-    ).filter((id) => id !== nextOptionalActivity.id)
+    ).filter((id) => id !== nextOptionalActivity?.id)
 
     results.maxEffort = c.r2(
       Object.keys(results.clears)
@@ -545,8 +555,9 @@ export class User extends Entity {
     //     (found.acceptableEffort || -1),
     // )
     return (
+      !!found.maxEffort &&
       (found.effortExpended || 0) >=
-      (found.acceptableEffort || -1)
+        (found.acceptableEffort || -1)
     )
   }
 

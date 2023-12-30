@@ -211,6 +211,15 @@
           </div>
         </div>
       </div>
+
+      <div class="padleft padright flexcenter marbotbig">
+        <button
+          class="secondary"
+          @click="appState.logOut()"
+        >
+          Log Out
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -223,6 +232,27 @@ const date = new Date(useRoute().params.dateStamp as string)
 appState.focusedDay.value = date
 
 const user = appState.currentUser
+c.log(user.value)
+if (!user.value?.activities.length) {
+  newActivity()
+}
+if (appState.focusedDayIsToday.value) {
+  // * if the user didn't have enough activities to fill the day, try to add them now
+  if (user.value?.today) {
+    if (
+      Object.keys(user.value.today.clears)
+        .map((cl) => user.value?.getActivityById(cl))
+        .reduce(
+          (total, a) => total + (a?.effortRequired || 0),
+          0,
+        ) < (user.value.today.maxEffort || 0.01)
+    )
+      user.value.addActivityOnDay()
+
+    if ((user.value.today.acceptableEffort || 0) === 0)
+      user.value.assignActivitiesForDay(new Date(), true)
+  }
+}
 
 const orderedActivities = computed(() => {
   return user.value?.orderedActivities || []

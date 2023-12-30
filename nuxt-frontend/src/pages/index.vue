@@ -14,6 +14,8 @@ if (user.value) {
         appState.focusedDay.value,
       )}`,
     )
+} else {
+  useRouter().push(`/login`)
 }
 
 watch(user, () => {

@@ -44,14 +44,14 @@ export async function loadUser(
     setUserId(id)
   }
   if (!id) {
-    useRouter().push('/logIn')
+    useRouter().push('/login')
     return null
   }
 
   const userData = await loadFullUserData(id)
   if (!userData) {
-    useRouter().push('/logIn')
-    return null
+    const user = await createUser(id)
+    return user
   }
   currentUser.value = new User(userData)
   currentUser.value.passiveReset()
@@ -83,10 +83,10 @@ setInterval(() => {
 
 export async function createUser(
   id: string,
-  password: string,
+  // password: string,
 ): Promise<User> {
   setUserId(id)
-  setPassword(password)
+  // setPassword(password)
   const existing = await loadFullUserData(id)
   if (existing) {
     throw new Error('User already exists')
@@ -104,7 +104,7 @@ export async function createUser(
 
 export function logOut() {
   setUserId('')
-  setPassword('')
-  useRouter().push('/logIn')
+  // setPassword('')
+  useRouter().push('/login')
   currentUser.value = null
 }
