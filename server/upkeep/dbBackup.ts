@@ -12,6 +12,14 @@ async function backUp() {
   c.log('blue', 'Backing up data')
   const startTimestamp = Date.now()
 
+  if (!backupPath || !dataPath) {
+    c.log('red', 'Backup path or data path not found', {
+      backupPath,
+      dataPath,
+    })
+    return
+  }
+
   if (!fs.existsSync(backupPath)) {
     fs.mkdirSync(backupPath)
   }
@@ -24,32 +32,44 @@ async function backUp() {
   })
 
   // * remove old backups
-  let backupCount = backups.filter((b) =>
-    b.isDirectory(),
-  ).length
-  while (backupCount >= maxBackups) {
-    const oldestBackup = backups.sort((a, b) => {
-      return a.name > b.name ? 1 : -1
-    })[0]
-    await fs.promises.rm(
-      path.join(backupPath, oldestBackup.path),
-      {
-        recursive: true,
-      },
-    )
-    backups.shift()
-    backupCount--
+  try {
+    let backupCount = backups.filter((b) =>
+      b.isDirectory(),
+    ).length
+    while (backupCount >= maxBackups) {
+      const oldestBackup = backups.sort((a, b) => {
+        return a.name > b.name ? 1 : -1
+      })[0]
+      c.log(
+        'gray',
+        `  Removing old backup ${oldestBackup.name}`,
+      )
+      await fs.promises.rm(
+        path.join(backupPath, oldestBackup.name),
+        {
+          recursive: true,
+        },
+      )
+      backups.shift()
+      backupCount--
+    }
+  } catch (e) {
+    c.log('red', 'Error removing old backups', e)
   }
 
   const date = c.dateToDateString()
   const backupName = `${date}`
   const backupFolder = path.join(backupPath, backupName)
-  if (fs.existsSync(backupFolder)) {
-    await fs.promises.rm(backupFolder, {
-      recursive: true,
-    })
+  try {
+    if (fs.existsSync(backupFolder)) {
+      await fs.promises.rm(backupFolder, {
+        recursive: true,
+      })
+    }
+    await copyDirDeep(dataPath, backupFolder)
+  } catch (e) {
+    c.log('red', 'Error backing up data', e)
   }
-  await copyDirDeep(dataPath, backupFolder)
 
   c.log(
     'blue',
@@ -73,4 +93,4 @@ async function copyDirDeep(src: string, dest: string) {
 
 backupInterval = setInterval(backUp, backupTime)
 
-setTimeout(backUp, 1000 * 30)
+setTimeout(backUp, 1000 * 10)
