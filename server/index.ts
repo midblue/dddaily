@@ -11,6 +11,8 @@ import addOrUpdateRoutes from './routes/addOrUpdate'
 import getRoutes from './routes/get'
 import removeRoutes from './routes/remove'
 
+const routerBase = '/dddaily'
+
 const app = express()
 app.use(cors())
 app.use(bodyParser.json())
@@ -19,13 +21,16 @@ app.use((req, res, next) => {
   c.l('gray', `${req.method} ${req.path}`)
   next()
 })
-app.get('/', (req, res) => {
+app.get(`/`, (req, res) => {
   res.send('Server is running.')
 })
+app.get(`/${routerBase}`, (req, res) => {
+  res.send(`Server is running. ${routerBase}`)
+})
 
-app.use('/addOrUpdate', addOrUpdateRoutes)
-app.use('/get', getRoutes)
-app.use('/remove', removeRoutes)
+app.use(`${routerBase}/addOrUpdate`, addOrUpdateRoutes)
+app.use(`${routerBase}/get`, getRoutes)
+app.use(`${routerBase}/remove`, removeRoutes)
 
 function init() {
   const port = process.env.PORT || 3003
