@@ -49,7 +49,7 @@
             appState.focusedDay.value,
           ),
         }"
-        v-if="activity.streak"
+        v-if="activity.totalTimesDone"
       >
         <!-- <span
           class="small"
@@ -63,24 +63,16 @@
           >⚠️</span
         > -->
 
-        <template v-if="activity.streak > 0">
+        <template v-if="activity.totalTimesDone > 0">
           <span
             :style="{
-              'font-size':
-                activity.streak > 10
-                  ? '1em'
-                  : activity.streak > 5
-                  ? '0.8em'
-                  : activity.streak > 3
-                  ? '0.6em'
-                  : '0.4em',
-              filter: activity.didClearOnDay()
-                ? ''
-                : 'saturate(0)',
+              'font-size': '.6em',
+              filter:
+                activity.streak > 0 ? '' : 'saturate(0)',
             }"
             >🔥</span
           ><span class="number">{{
-            activity.streak
+            activity.totalTimesDone
           }}</span></template
         >
         <!-- <span v-else-if="activity.streak < 0">❗</span> -->

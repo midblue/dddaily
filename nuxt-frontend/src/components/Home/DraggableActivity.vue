@@ -9,7 +9,7 @@
       dragging,
     }"
   >
-    <div class="right flexcenter gap">
+    <div class="flexcenter gap">
       <div
         class="dragHandle clickableIconHolder"
         @mousedown.prevent="startDrag"
@@ -20,38 +20,39 @@
 
     <div
       @click="useRouter().push(`/activity/${activity.id}`)"
-      class="nowrap"
+      class="nowrap flex"
     >
-      <span>{{ activity.name }}</span>
-      <span class="small marleftsmall">
-        <!-- 🗓️-->{{ activity.exact ? '' : '~'
-        }}{{
-          c.msToTimeString(
-            activity.dayInterval * 1000 * 60 * 60 * 24,
-          )
-        }}
-        <!-- <span class="fade2">・</span>
-        {{
-          activity.effortRequired > 0.5
-            ? '🏋️‍♂️'
-            : activity.effortRequired > 0.25
-            ? '💪'
-            : '🤏'
-        }}
-        <span class="fade2">・</span>
-        {{
-          (activity.moodHighLimit + activity.moodLowLimit) /
-            2 >
-          0.6
-            ? '😎'
-            : (activity.moodHighLimit +
-                activity.moodLowLimit) /
-                2 >
-              0.4
-            ? '🙂'
-            : '😵‍💫'
-        }} -->
-      </span>
+      <div>{{ activity.name }}</div>
+      <div class="smaller marleftsmall flexcenter">
+        <div class="flexcenter">
+          <div class="smaller">🗓️</div>
+          {{ activity.exact ? '' : '~'
+          }}{{
+            c.msToTimeString(
+              activity.dayInterval * 1000 * 60 * 60 * 24,
+            )
+          }}
+        </div>
+        <div class="flexcenter marleftsmall">
+          <div class="smaller">💪</div>
+          {{ c.r2(activity.effortRequired * 10, 0) }}
+        </div>
+        <div
+          class="flexcenter marleftsmall"
+          v-if="
+            !activity.exact &&
+            !(
+              activity.moodLowLimit <= 0.1 &&
+              activity.moodHighLimit === 1
+            )
+          "
+        >
+          <div class="smaller">😄</div>
+          {{ c.r2(activity.moodLowLimit * 10, 0) }}-{{
+            c.r2(activity.moodHighLimit * 10, 0)
+          }}
+        </div>
+      </div>
     </div>
   </div>
 </template>

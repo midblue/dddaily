@@ -150,7 +150,7 @@
           class="marbot windowwidth"
           :toGraph="
             user.clears
-              .slice(-21)
+              .slice(-30)
               .map((cl) => [
                 cl.date,
                 cl.mood,
@@ -158,6 +158,7 @@
               ])
           "
           :max="1"
+          :showLine="0.5"
           style="height: 100px"
         />
       </div>

@@ -5,15 +5,22 @@
       ref="graphEl"
     >
       <div
-        class="topLine smallcaps fade"
+        class="topLine smallcaps fade nopointer"
         v-if="showLine"
         :style="{
-          top: `${(showLine / maxValue) * 100}%`,
+          top: `${
+            17 +
+            graphHeight -
+            (showLine / maxValue) * graphHeight
+          }px`,
         }"
       >
-        <div class="label">{{ showLine }}</div>
+        <!-- <div class="label">
+          {{ showLine * 10 }}
+        </div> -->
         <div class="line"></div>
       </div>
+
       <svg
         :viewBox="`${-1 * leftRightBuffer} -20 ${
           graphWidth + leftRightBuffer * 2

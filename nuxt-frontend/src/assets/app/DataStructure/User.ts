@@ -207,13 +207,10 @@ export class User extends Entity {
     )
     results.maxEffort = maxEffort
     const acceptableEffortMultiplier = c.r2(
-      ((results.energy || 0.5) * 0.8) / 2 + 0.5,
+      ((results.energy || 0.5) * 0.7) / 2 + 0.5,
     )
     results.acceptableEffort = c.r2(
-      c.r2(
-        (maxEffort * acceptableEffortMultiplier) / 0.1,
-        0,
-      ) * 0.1,
+      maxEffort * acceptableEffortMultiplier,
     )
     results.effortExpended = 0
     results.backupActivityIds = backups.map((a) => a.id)
@@ -308,14 +305,19 @@ export class User extends Entity {
       }
       if (isBigOne) alreadyHasBigOne = true
 
+      // * don't assign if it's over the budget
       if (
         currentEnergyUsage > effortBudget &&
         !mustBeDoneToday
       ) {
+        // * but if it's semi close to due, add it to the backup list
         if (a.activity.dueness > 0.5)
           backupActivities.push(a.activity)
         continue
       }
+
+      // * don't assign if it's not even close to due
+      if (a.activity.dueness < 0.4) continue
 
       activitiesToDo.push(a.activity)
       currentEnergyUsage += a.activity.effortRequired

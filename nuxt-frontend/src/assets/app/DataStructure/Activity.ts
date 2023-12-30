@@ -178,4 +178,18 @@ export class Activity extends Entity {
 
     return streak
   }
+
+  get totalTimesDone(): number {
+    if (!this.parent) return 0
+    const clears = (this.parent as User).clears
+    if (!clears) return 0
+
+    let total = 0
+    for (let i = clears.length - 1; i >= 0; i--) {
+      const clearData = clears[i]
+      total += clearData.clears[this.id] || 0
+    }
+
+    return total
+  }
 }
