@@ -13,9 +13,10 @@ routes.post('/', async (req, res) => {
     return
   }
   let userId = path[0].id
-  const rawPassword = req.headers.authorization as string
+  // const rawPassword = req.headers.authorization as string
 
-  if (!userId || !rawPassword) {
+  if (!userId) {
+    //|| !rawPassword) {
     c.log('gray', 'Invalid userId or rawPassword')
     res.status(401).json({ message: 'Invalid' })
     return
@@ -31,17 +32,17 @@ routes.post('/', async (req, res) => {
     return
   }
 
-  if (
-    !bcrypt.compareSync(
-      rawPassword,
-      naiveUserData.hashedPassword ||
-        '8929h30jrionu0vw9eijnfb20porqjwdnbwi9efsougbw3',
-    )
-  ) {
-    c.log('gray', 'Invalid password')
-    res.status(401).json({ message: 'Invalid' })
-    return
-  }
+  // if (
+  //   !bcrypt.compareSync(
+  //     rawPassword,
+  //     naiveUserData.hashedPassword ||
+  //       '8929h30jrionu0vw9eijnfb20porqjwdnbwi9efsougbw3',
+  //   )
+  // ) {
+  //   c.log('gray', 'Invalid password')
+  //   res.status(401).json({ message: 'Invalid' })
+  //   return
+  // }
 
   const dataFromDb = await db.get(path)
   if (!dataFromDb) {
@@ -50,7 +51,7 @@ routes.post('/', async (req, res) => {
     return
   }
 
-  delete (dataFromDb as any).hashedPassword
+  // delete (dataFromDb as any).hashedPassword
   c.log('gray', 'Sending data', path)
   res.json(dataFromDb)
 })
