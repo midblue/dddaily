@@ -1,9 +1,10 @@
 <template>
-  <PageTemplate class="flexcolumn flexcenter gap">
+  <PageTemplate class="flexcolumn flexcenter gap login">
     I am
     <input
       v-model="inputUserId"
       autofocus
+      placeholder="Enter a username..."
       autocomplete="false"
       autocorrect="false"
       autocapitalize="false"
@@ -13,7 +14,7 @@
     <br />
     <!-- password: <input v-model="inputPassword" />
     <br /> -->
-    <button @click="tryLogIn">go</button>
+    <button @click="tryLogIn">Go</button>
     <!-- <button @click="trySignUp">sign up</button> -->
   </PageTemplate>
 </template>
@@ -67,6 +68,11 @@ async function tryLogIn() {
 </script>
 
 <style lang="scss" scoped>
+.login {
+  & > * {
+    flex-grow: 0;
+  }
+}
 input {
   text-align: center;
 }

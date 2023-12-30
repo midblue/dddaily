@@ -237,7 +237,7 @@ if (!user.value?.activities.length) {
   newActivity()
 }
 if (appState.focusedDayIsToday.value) {
-  // * if the user didn't have enough activities to fill the day, try to add them now
+  // * if the user doesn't have enough activities to fill the day, try to add them now
   if (user.value?.today) {
     if (
       Object.keys(user.value.today.clears)
@@ -245,7 +245,7 @@ if (appState.focusedDayIsToday.value) {
         .reduce(
           (total, a) => total + (a?.effortRequired || 0),
           0,
-        ) < (user.value.today.maxEffort || 0.01)
+        ) < (user.value.today.acceptableEffort || 0.01)
     )
       user.value.addActivityOnDay()
 

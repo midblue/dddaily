@@ -143,6 +143,7 @@ const { activity } = defineProps({
     left: -3px;
     right: -3px;
     height: 2px;
+    z-index: 2;
     background: var(--text);
   }
 

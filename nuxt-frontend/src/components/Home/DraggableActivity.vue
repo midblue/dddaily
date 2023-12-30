@@ -124,6 +124,13 @@ function endDrag(e?: MouseEvent) {
 </script>
 
 <style lang="scss" scoped>
+.homeActivity {
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+  }
+}
+
 .dragging {
   position: relative;
   box-shadow: 0 1em 1em rgba(0, 0, 0, 0.2);

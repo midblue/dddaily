@@ -31,7 +31,7 @@ html {
   background: var(--mainBg);
   user-select: none;
 
-  font-size: 18px;
+  font-size: calc(min(min(5.5vw, 2.5vh), 18px));
   line-height: 1.6;
   font-weight: 300;
   font-family: var(--font-stack);
