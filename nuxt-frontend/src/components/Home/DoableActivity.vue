@@ -63,18 +63,27 @@
           >⚠️</span
         > -->
 
-        <template v-if="activity.totalTimesDone > 0">
+        <template v-if="activity.streak > 1">
           <span
             :style="{
               'font-size': '.6em',
-              filter:
-                activity.streak > 0 ? '' : 'saturate(0)',
             }"
             >🔥</span
-          ><span class="number">{{
-            activity.totalTimesDone
-          }}</span></template
+          ><span class="number">{{ activity.streak }}</span>
+        </template>
+        <template
+          v-if="
+            activity.totalTimesDone > 0 &&
+            activity.totalTimesDone !== activity.streak
+          "
         >
+          <span
+            class="number"
+            :class="{ marlefttiny: activity.streak > 1 }"
+          >
+            ({{ activity.totalTimesDone }})
+          </span>
+        </template>
         <!-- <span v-else-if="activity.streak < 0">❗</span> -->
       </span>
     </div>

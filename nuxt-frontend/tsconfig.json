@@ -6,10 +6,9 @@
   },
   "include": [
     ".nuxt/nuxt.d.ts",
-    "**/*",
     "src/**/*",
+    "nuxt.config.ts",
     "node_modules/@nuxt/devtools/runtime",
-    ".",
     "../@types",
     "../common"
   ]

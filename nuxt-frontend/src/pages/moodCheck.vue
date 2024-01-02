@@ -4,7 +4,16 @@
       <div class="flexcolumn gap fullwidth">
         <h4 class="marnone">How did you feel yesterday?</h4>
         <div class="flex nowrap">
-          <div class="big">😵‍💫</div>
+          <div
+            class="big"
+            :style="{
+              transform: `scale(${
+                1 - inputMood / 10 + 0.5
+              })`,
+            }"
+          >
+            😵‍💫
+          </div>
           <Slider
             :min="1"
             :max="10"
@@ -12,7 +21,14 @@
             :initialValue="inputMood"
             @update="setMood"
           />
-          <div class="big">😎</div>
+          <div
+            class="big"
+            :style="{
+              transform: `scale(${inputMood / 10 + 0.5})`,
+            }"
+          >
+            😎
+          </div>
         </div>
       </div>
 
@@ -23,7 +39,16 @@
           How much energy/availability do you have today?
         </h4>
         <div class="flex nowrap">
-          <div class="big">🪫</div>
+          <div
+            class="big"
+            :style="{
+              transform: `scale(${
+                1 - inputEnergy / 10 + 0.5
+              })`,
+            }"
+          >
+            🪫
+          </div>
           <Slider
             :min="1"
             :max="10"
@@ -31,7 +56,14 @@
             :initialValue="inputEnergy"
             @update="setEnergy"
           />
-          <div class="big">🔋</div>
+          <div
+            class="big"
+            :style="{
+              transform: `scale(${inputEnergy / 10 + 0.5})`,
+            }"
+          >
+            🔋
+          </div>
         </div>
       </div>
 

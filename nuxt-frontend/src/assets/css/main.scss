@@ -19,6 +19,7 @@
   --highlight: lightgreen;
 
   --pagePadLr: 1.5rem;
+  --contentMaxWidth: 500px;
 }
 
 *,
@@ -417,6 +418,7 @@ kbd {
 }
 .windowwidth {
   width: 100vw;
+  max-width: var(--contentMaxWidth);
 }
 
 *:disabled,

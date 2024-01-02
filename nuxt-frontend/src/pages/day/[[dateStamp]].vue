@@ -69,7 +69,7 @@
           <HomeMainProgressBar />
 
           <div class="todaysActivitiesList martop">
-            <template
+            <!--  <template
               v-if="appState.focusedDayIsToday.value"
             >
               <template
@@ -111,16 +111,16 @@
               /></template>
             </template>
 
-            <template v-else>
-              <HomeDoableActivity
-                v-for="activity in user.getActivitiesForDay(
-                  date,
-                )"
-                :key="'today' + activity.id"
-                class="flexverticalcenter gapsmall"
-                :activity="activity"
-              />
-            </template>
+            <template v-else> -->
+            <HomeDoableActivity
+              v-for="activity in user.getActivitiesForDay(
+                date,
+              )"
+              :key="'today' + activity.id"
+              class="flexverticalcenter gapsmall"
+              :activity="activity"
+            />
+            <!-- </template> -->
           </div>
 
           <!-- <div>

@@ -21,9 +21,12 @@
   >
     <InfoTooltip />
 
-    <!-- <div class="marauto" style="max-width: 350px"> -->
-    <slot />
-    <!-- </div> -->
+    <div
+      class="marauto"
+      style="max-width: var(--contentMaxWidth)"
+    >
+      <slot />
+    </div>
   </div>
 </template>
 

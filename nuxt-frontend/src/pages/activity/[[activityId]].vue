@@ -75,7 +75,16 @@
       <div class="labeledinput">
         <label for="time">Energy/Time Required</label>
         <div class="flexcenter gaptiny martopsmall">
-          <div class="big">🤏</div>
+          <div
+            class="big"
+            :style="{
+              transform: `scale(${
+                1 - activity.effortRequired + 0.5
+              })`,
+            }"
+          >
+            🤏
+          </div>
           <Slider
             :min="0"
             :max="10"
@@ -83,7 +92,16 @@
             :initialValue="activity.effortRequired * 10"
             @update="setEnergy"
           />
-          <div class="big">🏋️‍♂️</div>
+          <div
+            class="big"
+            :style="{
+              transform: `scale(${
+                activity.effortRequired + 0.5
+              })`,
+            }"
+          >
+            🏋️‍♂️
+          </div>
         </div>
       </div>
 
@@ -92,7 +110,20 @@
           >I want to do this when I feel...</label
         >
         <div class="flexcenter gaptiny martopsmall">
-          <div class="big">😵‍💫</div>
+          <div
+            class="big"
+            :style="{
+              transform: `scale(${
+                1 -
+                (activity.moodLowLimit +
+                  activity.moodHighLimit) /
+                  2 +
+                0.5
+              })`,
+            }"
+          >
+            😵‍💫
+          </div>
           <Slider
             :range="true"
             :min="1"
@@ -103,7 +134,19 @@
             @update="setMoodLowLimit"
             @updateUpper="setMoodHighLimit"
           />
-          <div class="big">😎</div>
+          <div
+            class="big"
+            :style="{
+              transform: `scale(${
+                (activity.moodLowLimit +
+                  activity.moodHighLimit) /
+                  2 +
+                0.5
+              })`,
+            }"
+          >
+            😎
+          </div>
         </div>
       </div>
 
