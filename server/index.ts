@@ -21,10 +21,7 @@ app.use((req, res, next) => {
   c.l('gray', `${req.method} ${req.path}`)
   next()
 })
-app.get(`/`, (req, res) => {
-  res.send('Server is running.')
-})
-app.get(`/${routerBase}`, (req, res) => {
+app.get(`${routerBase}`, (req, res) => {
   res.send(`Server is running. ${routerBase}`)
 })
 

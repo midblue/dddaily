@@ -127,14 +127,15 @@ export class Activity extends Entity {
     const daysSinceLastDone = Math.abs(
       c.daysBetween(lastDone, today),
     )
-    c.log(
-      this.name,
-      lastDone,
-      daysSinceLastDone,
-      this.streakLeewayEitherDirection,
-    )
+    // c.log(
+    //   this.name,
+    //   lastDone,
+    //   daysSinceLastDone,
+    //   daysSinceLastDone - this.dayInterval,
+    //   this.streakLeewayEitherDirection,
+    // )
     return (
-      daysSinceLastDone >
+      daysSinceLastDone - this.dayInterval >
       this.streakLeewayEitherDirection - 1
     )
   }

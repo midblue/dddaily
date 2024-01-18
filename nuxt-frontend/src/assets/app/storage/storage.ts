@@ -40,8 +40,6 @@ export async function removeElement(
 export async function loadFullUserData(
   id: string,
 ): Promise<UserConstructorData | null> {
-  c.log('loadUser', id)
-
   const remoteRes = await remote.loadFullUserDataFromRemote(
     id,
   )

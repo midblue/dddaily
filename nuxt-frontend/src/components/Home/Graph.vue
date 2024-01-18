@@ -129,7 +129,7 @@
           }}
         </div>
         <div class="dateAxisItem smallcaps fade markRight">
-          Now
+          Today
         </div>
       </div>
     </div>

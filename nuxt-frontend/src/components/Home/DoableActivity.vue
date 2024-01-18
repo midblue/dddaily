@@ -1,5 +1,10 @@
 <template>
-  <div class="activity relative flexbetween" v-if="user">
+  <div
+    class="activity relative flexbetween"
+    v-if="user"
+    @mouseover="hover = true"
+    @mouseleave="hover = false"
+  >
     <div class="flexverticalcenter gapsmall nowrap">
       <Checkbox
         class="checkbox"
@@ -49,9 +54,9 @@
             appState.focusedDay.value,
           ),
         }"
-        v-if="activity.totalTimesDone"
+        v-if="hover || activity.streak"
       >
-        <!-- <span
+        <span
           class="small"
           v-if="
             c.dateToDateString(
@@ -61,21 +66,25 @@
             activity.willBreakStreakIfNotDoneToday
           "
           >⚠️</span
-        > -->
+        >
 
         <template v-if="activity.streak > 1">
           <span
             :style="{
               'font-size': '.6em',
+              filter:
+                activity.didClearOnDay(
+                  appState.focusedDay.value,
+                ) || !activity.willBreakStreakIfNotDoneToday
+                  ? 'none'
+                  : 'saturate(0)',
             }"
             >🔥</span
           ><span class="number">{{ activity.streak }}</span>
         </template>
+
         <template
-          v-if="
-            activity.totalTimesDone > 0 &&
-            activity.totalTimesDone !== activity.streak
-          "
+          v-if="hover && activity.totalTimesDone > 0"
         >
           <span
             class="number"
@@ -121,6 +130,8 @@ const { activity } = defineProps({
     required: true,
   },
 })
+
+const hover = ref(false)
 </script>
 
 <style lang="scss" scoped>

@@ -118,39 +118,67 @@ export class User extends Entity {
         0,
       ) + 0.5
 
-    const previousDay = this.getDay(
-      c.addDaysToDate(day, -1),
-    )
-    if (!previousDay) return minimumEffortBudget
-
-    const previousDayEffortUsage =
-      Object.keys(previousDay.clears || {})
-        .filter((key) => previousDay.clears![key] > 0)
+    const getEffortUsageFromDayData = (
+      dayData: DatedResults[0],
+    ): number =>
+      Object.keys(dayData.clears || {})
+        .filter((key) => dayData.clears![key] > 0)
         .map(
           (activityId) =>
             this.getActivityById(activityId)
               ?.effortRequired || 0,
         )
         .reduce((a, b) => a + b, 0) || 1
-    const previousDayEffortAsPercentOfAcceptable = c.r2(
-      previousDayEffortUsage /
-        (previousDay.acceptableEffort || 1),
+
+    const getEffortUsageAsPercentOfAcceptableFromDayData = (
+      dayData: DatedResults[0],
+    ): number =>
+      getEffortUsageFromDayData(dayData) /
+      (dayData.acceptableEffort || 1)
+
+    const previousDays = [
+      this.getDay(c.addDaysToDate(day, -1)),
+      this.getDay(c.addDaysToDate(day, -2)),
+      this.getDay(c.addDaysToDate(day, -3)),
+    ].filter((d) => !!d) as DatedResults[0][]
+    if (!previousDays.length) return minimumEffortBudget
+
+    const previousDayAverageEffortUsage = c.r2(
+      previousDays.reduce(
+        (a, b) =>
+          a +
+          getEffortUsageFromDayData(b) /
+            previousDays.length,
+        0,
+      ),
     )
+    const previousDayAverageEffortAsPercentOfAcceptable =
+      c.r2(
+        previousDays.reduce(
+          (a, b) =>
+            a +
+            getEffortUsageAsPercentOfAcceptableFromDayData(
+              b,
+            ) /
+              previousDays.length,
+          0,
+        ),
+      )
     const energyToday = this.today?.energy || 0.5
     const effortBudget = c.r2(
       minimumEffortBudget +
         Math.max(
           0,
-          previousDayEffortUsage -
+          previousDayAverageEffortUsage -
             minimumEffortBudget * 0.7,
         ) *
           energyToday *
-          previousDayEffortAsPercentOfAcceptable,
+          previousDayAverageEffortAsPercentOfAcceptable,
     )
     c.log({
       minimumEffortBudget,
-      previousDayEffortUsage,
-      previousDayEffortAsPercentOfAcceptable,
+      previousDayAverageEffortUsage,
+      previousDayAverageEffortAsPercentOfAcceptable,
       energyToday,
       effortBudget,
     })
@@ -206,12 +234,16 @@ export class User extends Entity {
       activities.reduce((a, b) => a + b.effortRequired, 0),
     )
     results.maxEffort = maxEffort
-    const acceptableEffortMultiplier = c.r2(
-      ((results.energy || 0.5) * 0.7) / 2 + 0.5,
+    const acceptableEffort = getAcceptableEffort(
+      results.energy,
+      activities,
     )
-    results.acceptableEffort = c.r2(
-      maxEffort * acceptableEffortMultiplier,
-    )
+    c.log({
+      acceptableEffort,
+      maxEffort,
+      r: acceptableEffort / maxEffort,
+    })
+    results.acceptableEffort = acceptableEffort
     results.effortExpended = 0
     results.backupActivityIds = backups.map((a) => a.id)
 
@@ -299,7 +331,7 @@ export class User extends Entity {
         isBigOne &&
         alreadyHasBigOne
       ) {
-        if (a.activity.dueness > 0.5)
+        if (a.activity.dueness > 0.49)
           backupActivities.push(a.activity)
         continue
       }
@@ -376,31 +408,38 @@ export class User extends Entity {
     this.save(['clears'])
   }
 
-  addActivityOnDay(day = new Date()): boolean {
+  addActivityOnDay(
+    day = new Date(),
+    specificActivity?: Activity,
+  ): boolean {
     c.log('addActivityOnDay')
     const results = this.getResultsForDay(
       c.dateToDateString(day),
     )
     if (!results) return false
-    let nextOptionalActivity = this.getActivityById(
-      results.backupActivityIds?.[0],
-    )
-    if (!nextOptionalActivity) {
-      // * if there's no backup activity, just pick a random one that we don't already have
-      const existing = this.getActivitiesForDay(day)
-      const remaining = this.activities.filter(
-        (a) => !existing.includes(a),
+    let chosenActivity: Activity | null =
+      specificActivity || null
+    if (!chosenActivity) {
+      chosenActivity = this.getActivityById(
+        results.backupActivityIds?.[0],
       )
-      if (!remaining.length) return false
-      nextOptionalActivity = c.randomFromArray(remaining)
+      if (!chosenActivity) {
+        // * if there's no backup activity, just pick a random one that we don't already have
+        const existing = this.getActivitiesForDay(day)
+        const remaining = this.activities.filter(
+          (a) => !existing.includes(a),
+        )
+        if (!remaining.length) return false
+        chosenActivity = c.randomFromArray(remaining)
+      }
+      if (!chosenActivity) return false
     }
-    if (!nextOptionalActivity) return false
 
-    results.clears[nextOptionalActivity.id] = 0
+    results.clears[chosenActivity.id] = 0
 
     results.backupActivityIds = (
       results.backupActivityIds || []
-    ).filter((id) => id !== nextOptionalActivity?.id)
+    ).filter((id) => id !== chosenActivity?.id)
 
     results.maxEffort = c.r2(
       Object.keys(results.clears)
@@ -599,4 +638,51 @@ export class User extends Entity {
       // * max clear!
     }
   }
+}
+
+function getAcceptableEffort(
+  /** 0-1 */
+  energy: number = 0.5,
+  activities: Activity[],
+) {
+  const totalEffort = c.r2(
+    activities.reduce((a, b) => a + b.effortRequired, 0),
+  )
+  const dueActivities = activities.filter(
+    (a) => a.dueness > 1,
+  )
+  const dueActivitiesEffort = c.r2(
+    dueActivities.reduce((a, b) => a + b.effortRequired, 0),
+  )
+  const optionalEffort = c.r2(
+    totalEffort - dueActivitiesEffort,
+  )
+  const optionalRatio = c.clamp(
+    0,
+    optionalEffort / (dueActivitiesEffort || 0.001),
+    1,
+  )
+  const acceptableEffort = c.r2(
+    Math.max(
+      Math.min(
+        dueActivitiesEffort +
+          optionalEffort *
+            // turns down the optional requirement if there are many due activities
+            optionalRatio *
+            (energy * 0.5),
+        totalEffort * 0.95,
+      ),
+      totalEffort * (0.3 + energy * 0.5),
+    ),
+  )
+  c.log({
+    totalEffort,
+    dueActivitiesEffort,
+    optionalEffort,
+    optionalRatio,
+    acceptableEffort,
+  })
+  return acceptableEffort
+
+  // ((energy || 0.5) * 0.7) / 2 + 0.5)
 }

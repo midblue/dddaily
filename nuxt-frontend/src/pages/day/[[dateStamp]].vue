@@ -7,11 +7,17 @@
           user.getActivitiesForDay(date).length,
       }"
     >
+      <Confetti
+        v-if="
+          appState.focusedDayIsToday && user.didClearOnDay()
+        "
+        style="z-index: 1000"
+      />
       <div
-        class="windowheight flexbetween flexcolumn windowwidth"
+        class="windowheightmin flexbetween flexcolumn windowwidth"
       >
         <div
-          class="flexgrow flexhorizcenter flexcolumn padleftbig padrightbig"
+          class="flexgrow flexhorizcenter flexcolumn padleftbig padrightbig padtop padbot"
         >
           <h1 class="marbottiny">
             <div
@@ -64,7 +70,7 @@
           <div>
             😎 {{ (user.yesterday?.mood || 0) * 10 }}
           </div>
-        </div> -->
+          </div> -->
 
           <HomeMainProgressBar />
 
@@ -123,7 +129,9 @@
             <!-- </template> -->
           </div>
 
-          <!-- <div>
+          <MoreButtons />
+
+          <!-- <div class="flexcenter martopsmall">
             <button
               class="small"
               @click="
@@ -136,14 +144,6 @@
               reassign
             </button>
           </div> -->
-          <div v-if="appState.focusedDayIsToday.value">
-            <button
-              class="small secondary fullwidth martopsmall"
-              @click="user.addActivityOnDay(new Date())"
-            >
-              +
-            </button>
-          </div>
         </div>
 
         <HomeGraph
@@ -163,7 +163,7 @@
         />
       </div>
 
-      <hr />
+      <hr style="opacity: 0.1" />
 
       <div class="padleftsmall padtopbig">
         <div class="padleftsmall padbotsmall">
@@ -232,7 +232,6 @@ const date = new Date(useRoute().params.dateStamp as string)
 appState.focusedDay.value = date
 
 const user = appState.currentUser
-c.log(user.value)
 if (!user.value?.activities.length) {
   newActivity()
 }

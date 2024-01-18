@@ -6,38 +6,38 @@ import * as c from '~/../../common'
 // } from './local'
 import * as state from '~/assets/app/appState'
 
-let connected = true
+// let connected = true
 
-function addConnectionListeners() {
-  fetch(state.getRemoteUrl())
-    .then(() => {
-      c.l('Connected to remote server.')
-      connected = true
-    })
-    .catch(() => {
-      c.l('Could not connect to remote server.')
-      connected = false
-    })
+// function addConnectionListeners() {
+//   fetch(state.getRemoteUrl())
+//     .then(() => {
+//       c.l('Connected to remote server.')
+//       connected = true
+//     })
+//     .catch(() => {
+//       c.l('Could not connect to remote server.')
+//       connected = false
+//     })
 
-  if (typeof window !== 'undefined') {
-    window?.addEventListener('offline', () => {
-      connected = false
-    })
+//   if (typeof window !== 'undefined') {
+//     window?.addEventListener('offline', () => {
+//       connected = false
+//     })
 
-    window?.addEventListener('online', async () => {
-      await fetch(state.getRemoteUrl())
-        .then(() => {
-          connected = true
-          // saveQueuedElementsToRemote()
-        })
-        .catch(() => {
-          c.l('Could not connect to remote server')
-          connected = false
-        })
-    })
-  }
-}
-setTimeout(addConnectionListeners, 100)
+//     window?.addEventListener('online', async () => {
+//       await fetch(state.getRemoteUrl())
+//         .then(() => {
+//           connected = true
+//           // saveQueuedElementsToRemote()
+//         })
+//         .catch(() => {
+//           c.l('Could not connect to remote server')
+//           connected = false
+//         })
+//     })
+//   }
+// }
+// setTimeout(addConnectionListeners, 100)
 
 async function sendElementForRemoteSave(
   data: SaveableData,
@@ -89,6 +89,7 @@ export async function loadElementFromRemote<
     })
     .catch((error) => {
       c.error(
+        'loadElementFromRemote error:',
         error.response?.data || error.message || error,
       )
       return null
@@ -133,11 +134,11 @@ export async function removeElement(path: GettablePath) {
 export async function saveElement(
   data: SaveableData,
 ): Promise<boolean> {
-  if (!connected) {
-    // queueForRemoteAction({ type: 'addOrUpdate', data })
-    c.log('Queued element for remote save on reconnect')
-    return false
-  }
+  // if (!connected) {
+  //   // queueForRemoteAction({ type: 'addOrUpdate', data })
+  //   c.log('Queued element for remote save on reconnect')
+  //   return false
+  // }
 
   return await sendElementForRemoteSave(data)
 }

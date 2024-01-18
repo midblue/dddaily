@@ -53,6 +53,7 @@ interface ActivityConstructorData
   moodHighLimit?: number
   dayInterval?: number
   exact?: boolean
+  oneTime?: boolean
 }
 
 type GettablePath = { type: EntityType; id: string }[]

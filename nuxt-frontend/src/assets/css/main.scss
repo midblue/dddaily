@@ -7,7 +7,7 @@
   --font-stack: 'Balsamiq Sans', 'Helvetica',
     'Noto Color Emoji', 'Noto Emoji', 'Yu Gothic',
     'YuGothic', sans-serif;
-  --mainBg: #fff;
+  --mainBg: var(--bg);
   --text: #222;
   --textL: #aaa;
   --textL2: #ccc;
@@ -17,6 +17,8 @@
   --warning: rgb(234, 109, 78);
   --borderRadius: 3px;
   --highlight: lightgreen;
+  --highlightD: rgb(0, 186, 0);
+  --highlightL: rgb(200, 255, 200);
 
   --pagePadLr: 1.5rem;
   --contentMaxWidth: 500px;
@@ -415,6 +417,9 @@ kbd {
 }
 .windowheight {
   height: 100vh;
+}
+.windowheightmin {
+  min-height: 100vh;
 }
 .windowwidth {
   width: 100vw;
