@@ -1,6 +1,7 @@
 import * as c from '~/../../common'
 import { Activity } from './Activity'
 import { Entity } from './Entity'
+import { networkCheck } from '../appState'
 
 export class User extends Entity {
   type: EntityType = 'User'
@@ -19,6 +20,7 @@ export class User extends Entity {
     for (let a of data.activityConstructors || []) {
       this.addActivityFromConstructorData(a)
     }
+
     this.activityIdOrder = data.activityIdOrder || []
     this.activities = this.activities.sort(
       (a, b) =>
@@ -32,7 +34,9 @@ export class User extends Entity {
     this.passiveReset()
   }
 
-  passiveReset() {
+  async passiveReset() {
+    if (!(await networkCheck())) return
+
     const newDay = c.dateToDateString()
     if (newDay !== this.currentDay) {
       this.currentDay = newDay
@@ -56,6 +60,8 @@ export class User extends Entity {
   }
 
   dailyReset() {
+    c.log('dailyReset')
+
     this.activities.forEach((activity) =>
       activity.dailyReset(),
     )

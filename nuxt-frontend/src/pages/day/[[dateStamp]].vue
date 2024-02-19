@@ -155,6 +155,7 @@
                 cl.date,
                 cl.mood,
                 user?.didClearOnDay(cl.date) ? 1 : 0,
+                cl.effortExpended || 0,
               ])
           "
           :max="1"
@@ -165,7 +166,7 @@
 
       <hr style="opacity: 0.1" />
 
-      <div class="padleftsmall padtopbig">
+      <div class="padleftsmall padtopbig windowwidth">
         <div class="padleftsmall padbotsmall">
           <h1>Edit Activities</h1>
         </div>
@@ -275,33 +276,14 @@ function newActivity() {
         name: 'New Activity',
         id: c.id('Activity'),
         type: 'Activity',
+        effortRequired: 0.2,
       },
       true,
     )
   if (!newActivity) return
 
-  useRouter().push(`/activity/${newActivity.id}`)
+  useRouter().push(`/newActivity/${newActivity.id}`)
 }
-
-const activitiesThatMustBeDoneToday = computed(() => {
-  if (c.dateToDateString(date) !== c.dateToDateString())
-    return []
-  return (
-    user.value
-      ?.getActivitiesForDay(date)
-      .filter((a) => a.willBreakStreakIfNotDoneToday) || []
-  )
-})
-const activitiesThatAreOptionalToday = computed(() => {
-  return (
-    user.value
-      ?.getActivitiesForDay(date)
-      .filter(
-        (a) =>
-          !activitiesThatMustBeDoneToday.value.includes(a),
-      ) || []
-  )
-})
 </script>
 
 <style lang="scss" scoped>

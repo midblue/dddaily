@@ -16,17 +16,17 @@
 
       <div class="flexcenter martopbig padtopbig">
         <button
-          v-if="!promptDelete"
           @click="removeActivity"
+          class="warning small"
         >
-          Delete Activity
+          Delete
         </button>
+        <button @click="goHome" class="small">Done</button>
         <button
-          v-if="promptDelete"
-          class="warning"
-          @click="removeActivity"
+          @click="addAnotherActivity"
+          class="small primary"
         >
-          Really??
+          Add Another
         </button>
       </div>
     </div>
@@ -42,18 +42,33 @@ const user = appState.currentUser
 const activity = computed(() =>
   user.value?.getActivityById(activityId),
 )
+
 if (!activity.value) {
   useRouter().replace(`/`)
 }
 
-const promptDelete = ref(false)
 function removeActivity() {
-  if (!promptDelete.value) {
-    promptDelete.value = true
-    return
-  }
   user.value?.removeActivity(activity.value!)
   useRouter().replace(`/`)
+}
+
+function addAnotherActivity() {
+  const newActivity =
+    user.value?.addActivityFromConstructorData(
+      {
+        name: 'New Activity',
+        id: c.id('Activity'),
+        type: 'Activity',
+      },
+      true,
+    )
+  if (!newActivity) return
+
+  useRouter().push(`/newActivity/${newActivity.id}`)
+}
+
+function goHome() {
+  useRouter().push(`/`)
 }
 </script>
 

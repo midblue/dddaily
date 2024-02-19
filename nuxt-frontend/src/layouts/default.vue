@@ -65,7 +65,7 @@ function onWindowFocus() {
   appState.windowIsFocused.value = true
   passiveReset()
 }
-function passiveReset() {
+async function passiveReset() {
   // c.log(
   //   'passive reset',
   //   appState.userIsProbablyActivelyUsingApp(),
@@ -74,6 +74,12 @@ function passiveReset() {
   //       appState.lastUserInteractionTimestampMs.value,
   //   ),
   // )
+  if (!(await appState.networkCheck())) {
+    useRouter().replace(`/offline`)
+    return
+  } else if (useRoute().path.includes('offline'))
+    useRouter().replace(`/`)
+
   appState.currentUser.value?.passiveReset()
   if (!appState.currentUser.value?.today?.energy)
     useRouter().replace(`/`)

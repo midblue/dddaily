@@ -6,6 +6,14 @@ import * as c from '~/../../common'
 // } from './local'
 import * as state from '~/assets/app/appState'
 
+export async function networkCheck() {
+  try {
+    const res = await fetch(state.getRemoteUrl() + '/')
+    return res.status === 200
+  } catch (e) {
+    return false
+  }
+}
 // let connected = true
 
 // function addConnectionListeners() {

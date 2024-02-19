@@ -52,7 +52,14 @@
 
         <template
           v-for="(
-            [date, mood, didClear, didHaveMood], index
+            [
+              date,
+              mood,
+              didClear,
+              didHaveMood,
+              energyExpended,
+            ],
+            index
           ) in pointsWithRelevantXp"
         >
           <circle
@@ -63,12 +70,12 @@
               graphWidth
             "
             :cy="graphHeight - (mood! / maxValue) * graphHeight"
-            r="3.5"
+            :r="1.5 + 3 * energyExpended"
             :fill="didClear ? 'var(--text)' : 'transparent'"
             :stroke="
               didClear ? 'transparent' : 'var(--text)'
             "
-            stroke-width="2"
+            stroke-width="1"
           />
 
           <rect
@@ -143,7 +150,7 @@ const { toGraph, max, showLine, graphHeight } = defineProps(
   {
     toGraph: {
       type: Object as PropType<
-        [DateString, number | undefined, number][]
+        [DateString, number | undefined, number, number][]
       >,
       required: true,
     },
@@ -159,6 +166,8 @@ const { toGraph, max, showLine, graphHeight } = defineProps(
     },
   },
 )
+
+// c.log(toGraph)
 
 const graphWidth = ref(100)
 const graphEl = ref<HTMLElement>()
@@ -194,17 +203,28 @@ const maxValue = computed(() => {
     ) + 0.1
   )
 })
+
+const maxEnergyExpended = computed(() => {
+  return Math.max(
+    ...toGraph.map(
+      ([, , , energyExpended]) => energyExpended,
+    ),
+  )
+})
 const pointsWithRelevantXp = computed(() => {
   let prevXp = 0
-  return toGraph.map(([date, mood, didClear]) => {
-    if (mood !== undefined) prevXp = mood
-    return [
-      date,
-      mood || prevXp,
-      didClear,
-      mood !== undefined,
-    ]
-  }) as [DateString, number, number, boolean][]
+  return toGraph.map(
+    ([date, mood, didClear, energyExpended]) => {
+      if (mood !== undefined) prevXp = mood
+      return [
+        date,
+        mood || prevXp,
+        didClear,
+        mood !== undefined,
+        energyExpended / maxEnergyExpended.value,
+      ]
+    },
+  ) as [DateString, number, number, boolean, number][]
 })
 
 const d = computed(() => {
