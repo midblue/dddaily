@@ -30,7 +30,9 @@ export function getUpdatedClears(
   const newClears: DatedResults = []
   let currentDate = startDateString
   const today = date.dateToDateString()
-  while (currentDate <= today) {
+  let attempts = 0
+  while (currentDate <= today && attempts < 1000) {
+    attempts++
     const dateString = currentDate
     const oldClear = oldClears.find(
       (c) => c.date === dateString,
