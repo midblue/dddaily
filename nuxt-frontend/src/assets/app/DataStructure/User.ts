@@ -8,6 +8,7 @@ export class User extends Entity {
   activities: Activity[]
   activityIdOrder: string[]
   clears: DatedResults = []
+  freebiesAvailable: number = 0
 
   private currentDay: DateString = c.dateToDateString()
   private dailyHooks: (() => void)[] = []
@@ -30,8 +31,18 @@ export class User extends Entity {
     this.updateActivityOrder()
 
     this.clears = data.clears || []
+    this.freebiesAvailable = data.freebiesAvailable || 0
 
     this.passiveReset()
+  }
+
+  getSaveableData(): UserConstructorData {
+    return {
+      ...super.getSaveableData(),
+      activityIdOrder: this.activityIdOrder,
+      clears: this.clears,
+      freebiesAvailable: this.freebiesAvailable,
+    }
   }
 
   async passiveReset() {
@@ -67,6 +78,7 @@ export class User extends Entity {
     )
 
     this.bringClearsUpToDate()
+    this.checkUseFreebie()
 
     super.dailyReset()
 
@@ -78,11 +90,28 @@ export class User extends Entity {
     this.dailyHooks.push(hook)
   }
 
-  getSaveableData(): UserConstructorData {
-    return {
-      ...super.getSaveableData(),
-      activityIdOrder: this.activityIdOrder,
-      clears: this.clears,
+  bringClearsUpToDate(): void {
+    if (!this.activities.length) return
+    let prevClears = this.clears
+    this.clears = c.getUpdatedClears(this.clears)
+
+    if (
+      JSON.stringify(prevClears) !==
+      JSON.stringify(this.clears)
+    )
+      this.save(['clears'])
+  }
+
+  checkUseFreebie() {
+    if (
+      this.yesterday &&
+      !this.didClearOnDay(this.yesterday) &&
+      this.freebiesAvailable > 0
+    ) {
+      this.freebiesAvailable--
+      this.save(['freebiesAvailable'])
+      this.yesterday.usedFreebie = true
+      this.save(['clears'])
     }
   }
 
@@ -115,14 +144,19 @@ export class User extends Entity {
   }
 
   getEffortBudget(day = new Date()): number {
-    // * minimum is all exact due things, plus .5 to let in at least one or two more things
-    // * so we don't end up with a day of nothing but exact daily things
-    const minimumEffortBudget =
-      this.activities.reduce(
-        (a, b) =>
-          a + (b.dueness > 2 ? b.effortRequired : 0),
-        0,
-      ) + 0.5
+    // * minimum is sum effort cost of exact and due now activities
+    // * "if you do nothing else today, at least do these."
+    const minimumEffortBudget = this.activities.reduce(
+      (a, b) => a + (b.dueness > 2 ? b.effortRequired : 0),
+      0,
+    )
+
+    // // * maximum is sum effort cost of activities that are at least partly due
+    // const rawMaximumEffortBudget = this.activities.reduce(
+    //   (a, b) =>
+    //     a + (b.dueness >= 0.6 ? b.effortRequired : 0),
+    //   0,
+    // )
 
     const getEffortUsageFromDayData = (
       dayData: DatedResults[0],
@@ -135,6 +169,39 @@ export class User extends Entity {
               ?.effortRequired || 0,
         )
         .reduce((a, b) => a + b, 0) || 1
+
+    // const previousDays = [
+    //   this.getDay(c.addDaysToDate(day, -1)),
+    //   this.getDay(c.addDaysToDate(day, -2)),
+    //   this.getDay(c.addDaysToDate(day, -3)),
+    // ].filter((d) => !!d) as DatedResults[0][]
+
+    // const previousDayEffortUsage = previousDays.map(
+    //   (a) =>
+    //     getEffortUsageFromDayData(a) || minimumEffortBudget,
+    // )
+
+    // const maximumEffortBudget = c.average(
+    //   rawMaximumEffortBudget,
+    //   ...previousDayEffortUsage,
+    // )
+
+    // const effortBudget = c.lerp(
+    //   minimumEffortBudget,
+    //   maximumEffortBudget,
+    //   energyToday,
+    //   true,
+    // )
+
+    // c.log({
+    //   minimumEffortBudget,
+    //   rawMaximumEffortBudget,
+    //   maximumEffortBudget,
+    //   effortBudget,
+    //   previousDayEffortUsage,
+    // })
+
+    const energyToday = this.today?.energy || 0.5
 
     const getEffortUsageAsPercentOfAcceptableFromDayData = (
       dayData: DatedResults[0],
@@ -170,7 +237,6 @@ export class User extends Entity {
           0,
         ),
       )
-    const energyToday = this.today?.energy || 0.5
     const effortBudget = c.r2(
       minimumEffortBudget +
         Math.max(
@@ -188,6 +254,7 @@ export class User extends Entity {
       energyToday,
       effortBudget,
     })
+
     return effortBudget
   }
 
@@ -457,15 +524,6 @@ export class User extends Entity {
     return true
   }
 
-  get yesterday(): DatedResults[0] | null {
-    const yesterday = c.dateToDateString(
-      c.addDaysToDate(new Date(), -1),
-    )
-    return (
-      this.clears.find((c) => c.date === yesterday) || null
-    )
-  }
-
   getDay(day: DateString | Date): DatedResults[0] | null {
     if (day instanceof Date) day = c.dateToDateString(day)
     return this.clears.find((c) => c.date === day) || null
@@ -477,17 +535,13 @@ export class User extends Entity {
       null
     )
   }
-
-  bringClearsUpToDate(): void {
-    if (!this.activities.length) return
-    let prevClears = this.clears
-    this.clears = c.getUpdatedClears(this.clears)
-
-    if (
-      JSON.stringify(prevClears) !==
-      JSON.stringify(this.clears)
+  get yesterday(): DatedResults[0] | null {
+    const yesterday = c.dateToDateString(
+      c.addDaysToDate(new Date(), -1),
     )
-      this.save(['clears'])
+    return (
+      this.clears.find((c) => c.date === yesterday) || null
+    )
   }
 
   getResultsForDay(
@@ -587,12 +641,21 @@ export class User extends Entity {
   }
 
   didClearOnDay(
-    day: DateString | Date = c.dateToDateString(),
+    day:
+      | DateString
+      | Date
+      | DatedResults[0]
+      | undefined
+      | null = c.dateToDateString(),
   ): boolean {
+    if (!day) return false
     if (day instanceof Date) day = c.dateToDateString(day)
-    const found = this.clears.find(
-      (clear) => clear.date === day,
-    )
+    let found: DatedResults[0] | null = null
+    if (day instanceof Object && day.date) found = day
+    else
+      found =
+        this.clears.find((clear) => clear.date === day) ||
+        null
     if (!found) return false
     // c.log(
     //   found,
@@ -600,9 +663,10 @@ export class User extends Entity {
     //     (found.acceptableEffort || -1),
     // )
     return (
-      !!found.maxEffort &&
-      (found.effortExpended || 0) >=
-        (found.acceptableEffort || -1)
+      found.usedFreebie ||
+      (!!found.maxEffort &&
+        (found.effortExpended || 0) >=
+          (found.acceptableEffort || -1))
     )
   }
 
@@ -633,15 +697,19 @@ export class User extends Entity {
     this.save(['clears'])
 
     if (!userWasCleared && this.didClearOnDay(day)) {
-      c.log('full clear!')
-      // * full clear!
+      c.log('achieved goal!')
     }
 
     if (
       results.effortExpended >= (results.maxEffort || 10000)
     ) {
-      c.log('max clear!')
-      // * max clear!
+      c.log('full clear!')
+      const maxFreebies = 3
+      this.freebiesAvailable = c.clamp(
+        0,
+        this.freebiesAvailable + 1,
+        maxFreebies,
+      )
     }
   }
 }

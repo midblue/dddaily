@@ -53,8 +53,8 @@ function click() {
 .checkbox {
   position: relative;
   cursor: pointer;
-  min-width: 29px;
-  height: 29px;
+  min-width: 28px;
+  height: 28px;
   box-shadow: inset 0 0 0 2px var(--text);
   background: var(--bgD);
   border-radius: var(--borderRadius);
@@ -80,6 +80,10 @@ function click() {
     top: 2px;
     left: 0;
     font-size: 16px;
+  }
+
+  &:not(.checked):hover {
+    background: var(--bgD2);
   }
 
   &.checked {

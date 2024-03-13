@@ -11,6 +11,7 @@ export class Activity extends Entity {
   moodHighLimit: number = 1
   dayInterval: number = 1
   exact: boolean = false
+  inspiration: string = ''
 
   constructor(
     data: ActivityConstructorData,
@@ -30,6 +31,8 @@ export class Activity extends Entity {
     )
     this.dayInterval = parseInt(`${data.dayInterval ?? 1}`)
     this.exact = !!data.exact
+
+    this.inspiration = data.inspiration || ''
 
     this.passiveReset()
   }
@@ -90,6 +93,7 @@ export class Activity extends Entity {
       moodHighLimit: this.moodHighLimit,
       dayInterval: this.dayInterval,
       exact: this.exact,
+      inspiration: this.inspiration,
     }
   }
 

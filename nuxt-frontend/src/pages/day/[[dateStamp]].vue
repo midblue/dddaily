@@ -34,6 +34,17 @@
                 })
               }}
             </div>
+            <div
+              v-else-if="appState.focusedDayIsToday && (user.today!.effortExpended || 0) >= (user.today!.maxEffort || 10000)"
+            >
+              Full Clear!
+              <div class="sub" style="font-size: 1rem">
+                {{ user.getStreak() }} day streak!
+              </div>
+              <div class="sub" style="font-size: 1rem">
+                <span class="freebie">Freebie</span> earned!
+              </div>
+            </div>
             <div v-else-if="user.didClearOnDay(date)">
               {{ user.getStreak() }} day streak!
             </div>
@@ -50,6 +61,23 @@
                   .getActivitiesForDay(date)
                   .find((a) => !a.didClearOnDay(date))?.name
               }}
+              <div
+                class="sub"
+                style="font-size: 0.9rem"
+                v-if="
+                  user
+                    .getActivitiesForDay(date)
+                    .find((a) => !a.didClearOnDay(date))
+                    ?.inspiration
+                "
+              >
+                {{
+                  user
+                    .getActivitiesForDay(date)
+                    .find((a) => !a.didClearOnDay(date))
+                    ?.inspiration
+                }}
+              </div>
             </div>
             <div v-else>
               Add an activity to get started!
@@ -74,7 +102,9 @@
 
           <HomeMainProgressBar />
 
-          <div class="todaysActivitiesList martop">
+          <div
+            class="todaysActivitiesList martop relative z2"
+          >
             <!--  <template
               v-if="appState.focusedDayIsToday.value"
             >
@@ -148,6 +178,7 @@
 
         <HomeGraph
           class="marbot windowwidth"
+          :key="user.today?.effortExpended"
           :toGraph="
             user.clears
               .slice(-30)
@@ -155,11 +186,13 @@
                 cl.date,
                 cl.mood,
                 user?.didClearOnDay(cl.date) ? 1 : 0,
+                cl.usedFreebie,
                 cl.effortExpended || 0,
               ])
           "
           :max="1"
           :showLine="0.5"
+          :freebiesAvailable="user.freebiesAvailable"
           style="height: 100px"
         />
       </div>

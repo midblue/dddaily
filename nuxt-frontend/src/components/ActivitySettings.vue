@@ -140,25 +140,58 @@
       </div>
     </div>
 
-    <div class="labeledinput">
-      <label for="time"
-        >Timer:
-        <span>{{
-          !activity.timer || !parseInt(`${activity.timer}`)
-            ? 'Off'
-            : activity.timer + ' minutes'
-        }}</span></label
+    <div>
+      <div
+        v-if="
+          activity.timer ||
+          activity.inspiration ||
+          showMoreOptions
+        "
       >
-      <div class="flexcenter gap martopsmall">
-        <Slider
-          :line="true"
-          :exponentialScale="true"
-          :min="0"
-          :max="120"
-          :step="1"
-          :initialValue="activity.timer || 0"
-          @update="setTimer"
-        />
+        <div class="labeledinput">
+          <label for="time"
+            >Timer:
+            <span>{{
+              !activity.timer ||
+              !parseInt(`${activity.timer}`)
+                ? 'Off'
+                : activity.timer + ' minutes'
+            }}</span></label
+          >
+          <div class="flexcenter gap martopsmall">
+            <Slider
+              :line="true"
+              :exponentialScale="true"
+              :min="0"
+              :max="120"
+              :step="1"
+              :initialValue="activity.timer || 0"
+              @update="setTimer"
+            />
+          </div>
+        </div>
+
+        <div class="labeledinput martopbig">
+          <label for="inspiration">Inspiration</label>
+          <textarea
+            class="inspiration"
+            v-model="activity.inspiration"
+            placeholder="What kinds of subtasks or variations could you do?"
+            @input="debouncedSave"
+          ></textarea>
+        </div>
+      </div>
+
+      <div
+        class="flexcenter martopsmall"
+        v-if="!activity.inspiration && !activity.timer"
+      >
+        <button
+          @click="showMoreOptions = !showMoreOptions"
+          class="secondary"
+        >
+          {{ showMoreOptions ? 'Less' : 'More' }} Options
+        </button>
       </div>
     </div>
   </div>
@@ -169,6 +202,8 @@ import * as c from '~/../../common'
 import * as appState from '~/assets/app/appState'
 import type { Activity } from '~/assets/app/DataStructure/Activity'
 const user = appState.currentUser
+
+const showMoreOptions = ref(false)
 
 const props = defineProps({
   activity: {
@@ -216,7 +251,9 @@ function save() {
 
 const debouncedSave = c.debounce(save, 1000)
 onBeforeRouteLeave((to, from, next) => {
-  save()
+  if (user.value?.activities.includes(props.activity!)) {
+    save()
+  }
   next()
 })
 </script>

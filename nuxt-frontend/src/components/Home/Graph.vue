@@ -56,6 +56,7 @@
               date,
               mood,
               didClear,
+              didUseFreebie,
               didHaveMood,
               energyExpended,
             ],
@@ -71,7 +72,13 @@
             "
             :cy="graphHeight - (mood! / maxValue) * graphHeight"
             :r="1.5 + 3 * energyExpended"
-            :fill="didClear ? 'var(--text)' : 'transparent'"
+            :fill="
+              didClear
+                ? didUseFreebie
+                  ? 'var(--freebie)'
+                  : 'var(--text)'
+                : 'transparent'
+            "
             :stroke="
               didClear ? 'transparent' : 'var(--text)'
             "
@@ -135,6 +142,9 @@
             })
           }}
         </div>
+        <div class="freebies flex gaptiny">
+          <div v-for="i in freebiesAvailable"></div>
+        </div>
         <div class="dateAxisItem smallcaps fade markRight">
           Today
         </div>
@@ -146,26 +156,40 @@
 <script setup lang="ts">
 import * as c from '~/../../common'
 
-const { toGraph, max, showLine, graphHeight } = defineProps(
-  {
-    toGraph: {
-      type: Object as PropType<
-        [DateString, number | undefined, number, number][]
-      >,
-      required: true,
-    },
-    max: {
-      type: Number,
-    },
-    showLine: {
-      type: Number,
-    },
-    graphHeight: {
-      type: Number,
-      default: 100,
-    },
+const {
+  toGraph,
+  max,
+  showLine,
+  graphHeight,
+  freebiesAvailable,
+} = defineProps({
+  toGraph: {
+    type: Object as PropType<
+      [
+        DateString,
+        number | undefined,
+        number,
+        boolean | undefined,
+        number,
+      ][]
+    >,
+    required: true,
   },
-)
+  max: {
+    type: Number,
+  },
+  showLine: {
+    type: Number,
+  },
+  graphHeight: {
+    type: Number,
+    default: 100,
+  },
+  freebiesAvailable: {
+    type: Number,
+    default: 0,
+  },
+})
 
 // c.log(toGraph)
 
@@ -207,24 +231,38 @@ const maxValue = computed(() => {
 const maxEnergyExpended = computed(() => {
   return Math.max(
     ...toGraph.map(
-      ([, , , energyExpended]) => energyExpended,
+      ([, , , , energyExpended]) => energyExpended,
     ),
   )
 })
 const pointsWithRelevantXp = computed(() => {
   let prevXp = 0
   return toGraph.map(
-    ([date, mood, didClear, energyExpended]) => {
+    ([
+      date,
+      mood,
+      didClear,
+      didUseFreebie,
+      energyExpended,
+    ]) => {
       if (mood !== undefined) prevXp = mood
       return [
         date,
         mood || prevXp,
         didClear,
+        !!didUseFreebie,
         mood !== undefined,
         energyExpended / maxEnergyExpended.value,
       ]
     },
-  ) as [DateString, number, number, boolean, number][]
+  ) as [
+    DateString,
+    number,
+    number,
+    boolean,
+    boolean,
+    number,
+  ][]
 })
 
 const d = computed(() => {
@@ -340,6 +378,15 @@ function toDate(date: DateString) {
     width: 2px;
     bottom: 2px;
     background: var(--textL);
+  }
+}
+
+.freebies {
+  div {
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    background: var(--freebie);
   }
 }
 </style>

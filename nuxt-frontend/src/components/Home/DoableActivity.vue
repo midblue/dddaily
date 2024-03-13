@@ -2,10 +2,13 @@
   <div
     class="activity relative flexbetween"
     v-if="user"
+    :class="{ hover }"
     @mouseover="hover = true"
     @mouseleave="hover = false"
   >
-    <div class="flexverticalcenter gapsmall nowrap">
+    <div
+      class="flexverticalcenter gapsmall nowrap fullwidth"
+    >
       <Checkbox
         class="checkbox"
         :key="'chkbox' + activity.id + activity.streak"
@@ -20,100 +23,122 @@
           )
         "
       />
-      <span
-        :class="{
-          cleared: activity.didClearOnDay(
-            appState.focusedDay.value,
-          ),
-          veryDue: activity.dueness >= 1.5,
-          optional: activity.dueness < 1.5,
-        }"
+      <div
+        class="rightOfCheckboxZone relative flexverticalcenter gapsmall nowrap"
+        @mouseleave="hover = false"
       >
         <div
-          class="clearedLine"
           v-if="
-            activity.didClearOnDay(
+            hover &&
+            activity.inspiration &&
+            !activity.didClearOnDay(
               appState.focusedDay.value,
             )
           "
-        ></div>
-        <span style="position: relative; top: 0.04em">{{
-          activity.name
-        }}</span>
-      </span>
+          class="inspiration"
+        >
+          {{ activity.inspiration }}
+        </div>
 
-      <Timer
-        v-if="activity.timer && !activity.didClearOnDay()"
-        :minutes="activity.timer"
-      />
-
-      <span
-        class="streakNumber flexcenter"
-        :class="{
-          cleared: activity.didClearOnDay(
-            appState.focusedDay.value,
-          ),
-        }"
-        v-if="hover || activity.streak"
-      >
-        <span
-          class="small"
-          v-if="
-            c.dateToDateString(
+        <div
+          class="relative"
+          :class="{
+            cleared: activity.didClearOnDay(
               appState.focusedDay.value,
-            ) === c.dateToDateString() &&
-            !activity.didClearOnDay() &&
-            activity.willBreakStreakIfNotDoneToday
-          "
-          >⚠️</span
+            ),
+            veryDue: activity.dueness >= 1.5,
+            optional: activity.dueness < 1.5,
+          }"
         >
+          <div
+            class="clearedLine"
+            v-if="
+              activity.didClearOnDay(
+                appState.focusedDay.value,
+              )
+            "
+          ></div>
+          <span style="position: relative; top: 0.04em">{{
+            activity.name
+          }}</span>
+        </div>
 
-        <template v-if="activity.streak > 1">
-          <span
-            :style="{
-              'font-size': '.6em',
-              filter:
-                activity.didClearOnDay(
-                  appState.focusedDay.value,
-                ) || !activity.willBreakStreakIfNotDoneToday
-                  ? 'none'
-                  : 'saturate(0)',
-            }"
-            >🔥</span
-          ><span class="number">{{ activity.streak }}</span>
-        </template>
+        <Timer
+          v-if="activity.timer && !activity.didClearOnDay()"
+          :minutes="activity.timer"
+        />
 
-        <template
-          v-if="hover && activity.totalTimesDone > 0"
+        <span
+          class="streakNumber flexcenter"
+          :class="{
+            cleared: activity.didClearOnDay(
+              appState.focusedDay.value,
+            ),
+          }"
+          v-if="hover || activity.streak"
         >
           <span
-            class="number"
-            :class="{ marlefttiny: activity.streak > 1 }"
+            class="small"
+            v-if="
+              c.dateToDateString(
+                appState.focusedDay.value,
+              ) === c.dateToDateString() &&
+              !activity.didClearOnDay() &&
+              activity.willBreakStreakIfNotDoneToday
+            "
+            >⚠️</span
           >
-            ({{ activity.totalTimesDone }})
-          </span>
-        </template>
-        <!-- <span v-else-if="activity.streak < 0">❗</span> -->
-      </span>
-    </div>
 
-    <div
-      v-if="
-        c.dateToDateString(appState.focusedDay.value) ===
-          c.dateToDateString() &&
-        !activity.exact &&
-        user.today?.backupActivityIds?.length &&
-        !activity.didClearOnDay(appState.focusedDay.value)
-      "
-      class="reloadSelf pointer"
-      @click="
-        user.swapActivityOnDay(
-          appState.focusedDay.value,
-          activity.id,
-        )
-      "
-    >
-      ↻
+          <template v-if="activity.streak > 0">
+            <span
+              :style="{
+                'font-size': '.6em',
+                filter:
+                  activity.didClearOnDay(
+                    appState.focusedDay.value,
+                  ) ||
+                  !activity.willBreakStreakIfNotDoneToday
+                    ? 'none'
+                    : 'saturate(0)',
+              }"
+              >🔥</span
+            ><span class="number">{{
+              activity.streak
+            }}</span>
+          </template>
+
+          <template
+            v-if="hover && activity.totalTimesDone > 0"
+          >
+            <span
+              class="number"
+              :class="{ marlefttiny: activity.streak > 1 }"
+            >
+              ({{ activity.totalTimesDone }})
+            </span>
+          </template>
+          <!-- <span v-else-if="activity.streak < 0">❗</span> -->
+        </span>
+      </div>
+
+      <div
+        v-if="
+          c.dateToDateString(appState.focusedDay.value) ===
+            c.dateToDateString() &&
+          !activity.exact &&
+          user.today?.backupActivityIds?.length &&
+          !activity.didClearOnDay(appState.focusedDay.value)
+        "
+        class="reloadSelf pointer"
+        @click="
+          user.swapActivityOnDay(
+            appState.focusedDay.value,
+            activity.id,
+          )
+        "
+      >
+        ↻
+      </div>
     </div>
   </div>
 </template>
@@ -139,6 +164,12 @@ const hover = ref(false)
   margin-bottom: calc(
     (1 / var(--activityCount)) * 1em + 0.15em
   );
+  cursor: default;
+
+  z-index: 1;
+  &.hover {
+    z-index: 2;
+  }
 
   // .veryDue {
   //   text-decoration: underline;
@@ -149,7 +180,11 @@ const hover = ref(false)
 
   .checkbox {
     position: relative;
+    cursor: pointer;
     z-index: 4;
+  }
+  .rightOfCheckboxZone {
+    width: 100%;
   }
   .cleared {
     position: relative;
@@ -203,6 +238,20 @@ const hover = ref(false)
     &:hover {
       background: rgba(black, 0.1);
     }
+  }
+
+  .inspiration {
+    pointer-events: none;
+    position: absolute;
+    font-size: 0.85em;
+    color: var(--textL);
+    z-index: 10;
+    width: 100%;
+    white-space: initial;
+    top: 100%;
+    left: 0;
+    padding: 0.2em 0.5em;
+    background: rgba(white, 0.95);
   }
 }
 </style>

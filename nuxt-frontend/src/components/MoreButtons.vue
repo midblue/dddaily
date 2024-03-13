@@ -64,7 +64,7 @@ function setOpen(to?: boolean) {
 
 <style lang="scss" scoped>
 .moreButtons {
-  z-index: 100;
+  z-index: 1;
 }
 .button,
 button {
