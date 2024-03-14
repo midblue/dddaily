@@ -19,6 +19,7 @@ type DatedResults = {
     [activityId: string]: Clear
   }
   backupActivityIds?: string[]
+  usedFreebie?: boolean
 }[]
 
 type EntityType = 'User' | 'Activity' | 'Identity'
@@ -39,6 +40,7 @@ interface UserConstructorData
   clears: DatedResults
   activityConstructors?: ActivityConstructorData[]
   activityIdOrder?: string[]
+  freebiesAvailable?: number
 }
 interface UserDbData extends UserConstructorData {
   hashedPassword: string
@@ -53,7 +55,7 @@ interface ActivityConstructorData
   moodHighLimit?: number
   dayInterval?: number
   exact?: boolean
-  oneTime?: boolean
+  inspiration?: string
 }
 
 type GettablePath = { type: EntityType; id: string }[]
