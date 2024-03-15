@@ -58,9 +58,14 @@
               )
             "
           ></div>
-          <span style="position: relative; top: 0.04em">{{
-            activity.name
-          }}</span>
+          <span
+            class="pointer"
+            style="position: relative; top: 0.04em"
+            @click="
+              useRouter().push(`/activity/${activity.id}`)
+            "
+            >{{ activity.name }}</span
+          >
         </div>
 
         <Timer

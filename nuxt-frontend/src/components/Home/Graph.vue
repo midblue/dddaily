@@ -71,7 +71,7 @@
               graphWidth
             "
             :cy="graphHeight - (mood! / maxValue) * graphHeight"
-            :r="1.5 + 3 * energyExpended"
+            :r="1.5 + 3 * (energyExpended || 0)"
             :fill="
               didClear
                 ? didUseFreebie

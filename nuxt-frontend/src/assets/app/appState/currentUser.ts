@@ -50,6 +50,7 @@ export async function loadUser(
     setUserId(id)
   }
   if (!id) {
+    c.log('No user id, redirecting to login')
     useRouter().push('/login')
     return null
   }
