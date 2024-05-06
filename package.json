@@ -2,6 +2,7 @@
   "scripts": {
     "build": "tsc -w",
     "build-once": "tsc",
+    "webfrontend": "cd ../nuxt-frontend-for-web && npm start",
     "dev": "PORT=3004 nodemon ./dist/server/index.js --watch ./dist/server",
     "golive": "git push && ssh root@p.jasperstephenson.com 'source ~/.profile && cd ~/dddaily && git pull && nvm use 18 && cd ./server && npm run build-once && cd ../ && /root/.nvm/versions/node/v16.17.1/bin/pm2 restart dddaily && /root/.nvm/versions/node/v16.17.1/bin/pm2 logs'"
   },
