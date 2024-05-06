@@ -20,6 +20,7 @@ type DatedResults = {
   }
   backupActivityIds?: string[]
   usedFreebie?: boolean
+  awardedFreebie?: boolean
 }[]
 
 type EntityType = 'User' | 'Activity' | 'Identity'

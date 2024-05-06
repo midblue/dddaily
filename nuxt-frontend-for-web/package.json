@@ -1,0 +1,24 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "golive": "node ~/Code/baton/dist p.jasperstephenson.com/dddaily_frontend"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "nuxt": "^3.11.2",
+    "ufo": "1.5.3",
+    "vue": "^3.4.26",
+    "vue-router": "^4.3.2",
+    "vue-tsc": "^1.8.27"
+  },
+  "dependencies": {
+    "click-outside-vue3": "^4.0.1",
+    "sass": "^1.76.0",
+    "typescript": "^5.4.5"
+  }
+}
