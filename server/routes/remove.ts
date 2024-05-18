@@ -1,7 +1,7 @@
 import * as c from '../../common'
 import { Router } from 'express'
 import * as db from '../db/db'
-import * as bcrypt from 'bcrypt'
+// import * as bcrypt from 'bcrypt'
 
 const routes = Router()
 
