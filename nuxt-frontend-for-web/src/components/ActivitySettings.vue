@@ -244,6 +244,10 @@ function setDayInterval(dayInterval: number) {
 }
 
 function save() {
+  const existsOnUser = user.value?.activities.includes(
+    props.activity!,
+  )
+  if (!existsOnUser) return
   const a = props.activity
   if (!a) return
   a.save()
