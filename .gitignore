@@ -25,3 +25,6 @@ logs
 
 backups
 data
+
+nuxt-frontend/**/*
+nuxt-frontend/

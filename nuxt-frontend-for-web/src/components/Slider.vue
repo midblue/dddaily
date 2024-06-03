@@ -18,7 +18,7 @@
         ></path>
 
         <defs>
-          <mask id="mask">
+          <mask :id="'mask' + id">
             <rect
               :x="
                 range ? ((value - min) / spanSize) * 100 : 0
@@ -36,7 +36,7 @@
         </defs>
         <path
           class="active"
-          mask="url(#mask)"
+          :mask="`url(#mask${id})`"
           d="M 0 10 L 100 1 L 100 19 Z"
         ></path>
       </svg>
@@ -83,6 +83,8 @@ const emit = defineEmits<{
   (e: 'update', to: number): void
   (e: 'updateUpper', to: number): void
 }>()
+
+const id = c.id()
 
 const {
   min,

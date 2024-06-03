@@ -88,12 +88,12 @@ export async function get<T extends EntityConstructorData>(
     }
 
     const childKeys = await storage.getKeys(currentPath)
-    c.log('getSubPropConstructorsRecursively', {
-      currentPath,
-      hasSubPropTypes,
-      willCheckSubPropTypes: Object.keys(hasSubPropTypes),
-      childKeys,
-    })
+    // c.log('getSubPropConstructorsRecursively', {
+    //   currentPath,
+    //   hasSubPropTypes,
+    //   willCheckSubPropTypes: Object.keys(hasSubPropTypes),
+    //   childKeys,
+    // })
     for (let subPropType of Object.keys(hasSubPropTypes)) {
       // c.log('looking for subPropType', subPropType)
       // * get subProp constructors

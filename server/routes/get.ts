@@ -51,7 +51,7 @@ routes.post('/', async (req, res) => {
     return
   }
 
-  // delete (dataFromDb as any).hashedPassword
+  delete (dataFromDb as any).hashedPassword
   c.log('gray', 'Sending data', path)
   res.json(dataFromDb)
 })

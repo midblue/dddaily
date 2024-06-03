@@ -90,8 +90,9 @@ export abstract class Entity {
     }
 
     this.awaitingSave = true
-    const dataToSave =
-      this.getSaveableData() as SaveableData['elementToSave']
+    const dataToSave = JSON.parse(
+      JSON.stringify(this.getSaveableData()),
+    ) as SaveableData['elementToSave']
 
     for (let key of Object.keys(dataToSave)) {
       if (!this.keysToSave?.has(key)) {
@@ -106,6 +107,12 @@ export abstract class Entity {
     dataToSave.type = this.type
     dataToSave.updated = this.updated
     dataToSave.localVersion = this.localVersion
+
+    c.log(
+      'sending data',
+      dataToSave,
+      JSON.stringify(dataToSave).length,
+    )
 
     const saveRes = await saveElement({
       elementToSave: dataToSave,

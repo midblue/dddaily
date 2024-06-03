@@ -37,6 +37,7 @@ export const userIsProbablyActivelyUsingApp = () => {
   )
 }
 
+let isLoadingUser = false
 export async function loadUser(
   id?: string,
 ): Promise<User | null> {
@@ -55,7 +56,14 @@ export async function loadUser(
     return null
   }
 
+  if (isLoadingUser) {
+    c.log('Already loading user, waiting for result...')
+    while (!currentUser.value) await c.sleep(100)
+    return currentUser.value
+  }
+
   c.log('Loading user', id)
+  isLoadingUser = true
 
   const userData = await loadFullUserData(id)
   if (!userData) {

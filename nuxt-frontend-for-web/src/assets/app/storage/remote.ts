@@ -6,10 +6,18 @@ import * as c from '~/../../common'
 // } from './local'
 import * as state from '~/assets/app/appState'
 
+let lastSuccessfulCheck = 0
 export async function networkCheck() {
+  if (Date.now() - lastSuccessfulCheck < 1000 * 2) {
+    return true
+  }
   try {
     const res = await fetch(state.getRemoteUrl() + '/')
-    return res.status === 200
+    if (res.status === 200) {
+      lastSuccessfulCheck = Date.now()
+      return true
+    }
+    return false
   } catch (e) {
     return false
   }
