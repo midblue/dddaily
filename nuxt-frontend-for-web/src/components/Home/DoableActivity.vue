@@ -55,7 +55,8 @@
                 (h) => h !== -1,
               )"
               :class="{
-                completed: entry === 1,
+                completed: entry === 5,
+                passedOver: entry === 1,
                 failed: entry === 0,
               }"
             ></div>
@@ -323,6 +324,10 @@ watch(
 
       &.completed {
         background: var(--highlight);
+      }
+      &.passedOver {
+        background: var(--textL2);
+        width: 0.1rem;
       }
       &.failed {
         background: var(--text);

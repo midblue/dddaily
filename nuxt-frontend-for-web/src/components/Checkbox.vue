@@ -8,8 +8,8 @@
   >
     <svg
       v-if="checked && !label"
-      width="19"
-      height="17"
+      width="1em"
+      height=".9em"
       viewBox="0 0 19 17"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -53,8 +53,8 @@ function click() {
 .checkbox {
   position: relative;
   cursor: pointer;
-  min-width: 28px;
-  height: 28px;
+  min-width: 1.5em;
+  height: 1.5em;
   box-shadow: inset 0 0 0 2px var(--text);
   background: var(--bgD);
   border-radius: var(--borderRadius);
