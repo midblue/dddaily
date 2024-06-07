@@ -140,11 +140,17 @@ export class Activity extends Entity {
     // )
     return (
       daysSinceLastDone - this.dayInterval >
-      this.streakLeewayEitherDirection - 1
+      this.streakLeewayEitherDirection
     )
   }
 
-  /** array going back in time from today where -1 is "was not assigned", 0 is "failed to complete and streak ended", 1 is "failed to complete but was within leeway limit", and 5 is "completed" */
+  /**
+   * array going back in time from today in new-to-old order
+   * where -1 is "was not assigned",
+   * 0 is "failed to complete and streak ended",
+   * 1 is "failed to complete but was within leeway limit",
+   * and 5 is "completed"
+   * */
   get history(): (-1 | 0 | 1 | 5)[] {
     if (!this.parent) return []
     const allClears = (this.parent as User).clears
@@ -154,7 +160,7 @@ export class Activity extends Entity {
     let lastDoneDate = new Date(0)
     const streakLeewayEitherDirection =
       this.streakLeewayEitherDirection
-    for (let i = allClears.length - 1; i >= 0; i--) {
+    for (let i = 0; i < allClears.length; i++) {
       const clearData = allClears[i].clears[this.id]
       if (clearData === undefined) history.push(-1)
       else {
@@ -167,26 +173,34 @@ export class Activity extends Entity {
             lastDoneDate,
           )
           if (
+            streakLeewayEitherDirection &&
             daysBetween - this.dayInterval <=
-            streakLeewayEitherDirection
+              streakLeewayEitherDirection
           ) {
             history.push(1)
             lastDoneDate = new Date(allClears[i].date)
           } else {
+            c.log(
+              daysBetween,
+              this.dayInterval,
+              streakLeewayEitherDirection,
+            )
             history.push(0)
           }
         }
       }
     }
+    history.reverse()
 
     // remove trailing -1s
     while (history[history.length - 1] === -1) history.pop()
 
     // skip "failed to complete" if it's today and could still be done
-    if (history[0] === 0) {
+    if ([0, 1].includes(history[0])) {
       history = history.slice(1)
     }
 
+    // c.log(this.name, history)
     return history
   }
 
@@ -203,6 +217,21 @@ export class Activity extends Entity {
       const clearData = clears[i]
       // skip if not required for that day
       if (clearData.clears[this.id] === undefined) continue
+
+      // c.log(
+      //   this.name,
+      //   i,
+      //   streak,
+      //   lastDone,
+      //   clearData.date,
+      //   clearData.clears[this.id],
+      //   leeway,
+      //   this.dayInterval,
+      //   c.daysBetween(lastDone, clearData.date),
+      //   Math.abs(c.daysBetween(lastDone, clearData.date)) -
+      //     this.dayInterval <=
+      //     leeway,
+      // )
       // if done, increase streak
       if (
         (clearData.clears[this.id] || 0) > 0 &&
@@ -213,12 +242,6 @@ export class Activity extends Entity {
       }
       // don't worry about today
       else if (i === clears.length - 1) continue
-      else if (
-        clearData.clears[this.id] !== undefined &&
-        clearData.clears[this.id] < 1 &&
-        streak <= 0
-      )
-        streak--
       // allow for leeway (only positive streak)
       else if (
         streak >= 0 &&
@@ -227,9 +250,16 @@ export class Activity extends Entity {
           this.dayInterval <=
           leeway
       ) {
-        // c.log(this.name, lastDone, clearData.date, leeway)
         continue
-      } else break
+      }
+      // if not done, decrease streak
+      else if (
+        clearData.clears[this.id] !== undefined &&
+        clearData.clears[this.id] < 1 &&
+        streak <= 0
+      )
+        streak--
+      else break
     }
 
     return streak

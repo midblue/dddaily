@@ -9,6 +9,7 @@ export class User extends Entity {
   type: EntityType = 'User'
   activities: Activity[]
   activityIdOrder: string[]
+  /** in old-to-new order */
   clears: DatedResults = []
   freebiesAvailable: number = 0
 
