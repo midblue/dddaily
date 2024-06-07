@@ -180,11 +180,11 @@ export class Activity extends Entity {
             history.push(1)
             lastDoneDate = new Date(allClears[i].date)
           } else {
-            c.log(
-              daysBetween,
-              this.dayInterval,
-              streakLeewayEitherDirection,
-            )
+            // c.log(
+            //   daysBetween,
+            //   this.dayInterval,
+            //   streakLeewayEitherDirection,
+            // )
             history.push(0)
           }
         }
@@ -205,64 +205,71 @@ export class Activity extends Entity {
   }
 
   get streak(): number {
-    if (!this.parent) return 0
-    const clears = (this.parent as User).clears
-    if (!clears) return 0
-
+    const history = this.history
     let streak = 0
-    const leeway = this.streakLeewayEitherDirection
-
-    let lastDone = c.dateToDateString()
-    for (let i = clears.length - 1; i >= 0; i--) {
-      const clearData = clears[i]
-      // skip if not required for that day
-      if (clearData.clears[this.id] === undefined) continue
-
-      // c.log(
-      //   this.name,
-      //   i,
-      //   streak,
-      //   lastDone,
-      //   clearData.date,
-      //   clearData.clears[this.id],
-      //   leeway,
-      //   this.dayInterval,
-      //   c.daysBetween(lastDone, clearData.date),
-      //   Math.abs(c.daysBetween(lastDone, clearData.date)) -
-      //     this.dayInterval <=
-      //     leeway,
-      // )
-      // if done, increase streak
-      if (
-        (clearData.clears[this.id] || 0) > 0 &&
-        streak >= 0
-      ) {
-        lastDone = clearData.date
-        streak++
-      }
-      // don't worry about today
-      else if (i === clears.length - 1) continue
-      // allow for leeway (only positive streak)
-      else if (
-        streak >= 0 &&
-        leeway &&
-        Math.abs(c.daysBetween(lastDone, clearData.date)) -
-          this.dayInterval <=
-          leeway
-      ) {
-        continue
-      }
-      // if not done, decrease streak
-      else if (
-        clearData.clears[this.id] !== undefined &&
-        clearData.clears[this.id] < 1 &&
-        streak <= 0
-      )
-        streak--
-      else break
+    for (let i = 0; i < history.length; i++) {
+      if (history[i] === 5) streak++
+      else if (history[i] === 0) break
     }
-
     return streak
+
+    // if (!this.parent) return 0
+    // const clears = (this.parent as User).clears
+    // if (!clears) return 0
+
+    // let streak = 0
+    // const leeway = this.streakLeewayEitherDirection
+
+    // let lastDone = c.dateToDateString()
+    // for (let i = clears.length - 1; i >= 0; i--) {
+    //   const clearData = clears[i]
+    //   // skip if not required for that day
+    //   if (clearData.clears[this.id] === undefined) continue
+
+    //   const isWithinLeeway =
+    //     !!leeway &&
+    //     Math.abs(c.daysBetween(lastDone, clearData.date)) -
+    //       this.dayInterval <=
+    //       leeway
+
+    //   c.log(this.name, i, {
+    //     streak,
+    //     cleared: clearData.clears[this.id]
+    //       ? 'cleared'
+    //       : 'not cleared',
+    //     leeway,
+    //     dayInterval: this.dayInterval,
+    //     daysBetween: c.daysBetween(
+    //       lastDone,
+    //       clearData.date,
+    //     ),
+    //     isWithinLeeway,
+    //   })
+    //   // if done, increase streak
+    //   if (
+    //     (clearData.clears[this.id] || 0) === 1 &&
+    //     streak >= 0
+    //   ) {
+    //     lastDone = clearData.date
+    //     streak++
+    //   }
+    //   // don't worry about today
+    //   else if (i === clears.length - 1) continue
+    //   // allow for leeway (only positive streak)
+    //   else if (streak >= 0 && isWithinLeeway) {
+    //     continue
+    //   }
+    //   // if not done, decrease streak
+    //   else if (
+    //     clearData.clears[this.id] !== undefined &&
+    //     clearData.clears[this.id] < 1 &&
+    //     streak <= 0
+    //   )
+    //     streak--
+    //   else break
+    // }
+
+    // return streak
   }
 
   get totalTimesDone(): number {
