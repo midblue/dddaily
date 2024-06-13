@@ -72,35 +72,15 @@
             <div v-else-if="user.didClearOnDay(date)">
               {{ user.getStreak() }} day streak!
             </div>
-            <div
-              v-else-if="
-                user
-                  .getActivitiesForDay(date)
-                  .find((a) => !a.didClearOnDay(date))
-              "
-            >
+            <div v-else-if="nextActivity">
               Next,
-              {{
-                user
-                  .getActivitiesForDay(date)
-                  .find((a) => !a.didClearOnDay(date))?.name
-              }}
+              {{ nextActivity.name }}
               <div
                 class="sub"
                 style="font-size: 0.9rem"
-                v-if="
-                  user
-                    .getActivitiesForDay(date)
-                    .find((a) => !a.didClearOnDay(date))
-                    ?.inspiration
-                "
+                v-if="nextActivity.inspiration"
               >
-                {{
-                  user
-                    .getActivitiesForDay(date)
-                    .find((a) => !a.didClearOnDay(date))
-                    ?.inspiration
-                }}
+                {{ nextActivity.inspiration }}
               </div>
             </div>
             <div v-else>
@@ -129,7 +109,7 @@
           <div
             class="todaysActivitiesList martop relative z2"
           >
-            <!--  <template
+            <template
               v-if="appState.focusedDayIsToday.value"
             >
               <template
@@ -171,16 +151,16 @@
               /></template>
             </template>
 
-            <template v-else> -->
-            <HomeDoableActivity
-              v-for="activity in user.getActivitiesForDay(
-                date,
-              )"
-              :key="'today' + activity.id"
-              class="flexverticalcenter gapsmall"
-              :activity="activity"
-            />
-            <!-- </template> -->
+            <template v-else>
+              <HomeDoableActivity
+                v-for="activity in user.getActivitiesForDay(
+                  date,
+                )"
+                :key="'today' + activity.id"
+                class="flexverticalcenter gapsmall"
+                :activity="activity"
+              />
+            </template>
           </div>
 
           <MoreButtons />
@@ -314,6 +294,35 @@ if (appState.focusedDayIsToday.value) {
 
 const orderedActivities = computed(() => {
   return user.value?.orderedActivities || []
+})
+
+const activitiesThatMustBeDoneToday = computed(() => {
+  return (
+    user.value
+      ?.getActivitiesForDay(date)
+      .filter((a) => a.daysUntilStreakBreak === 0) || []
+  )
+})
+const activitiesThatAreOptionalToday = computed(() => {
+  return (
+    user.value
+      ?.getActivitiesForDay(date)
+      .filter((a) => a.daysUntilStreakBreak > 0) || []
+  ).sort(
+    (a, b) =>
+      a.daysUntilStreakBreak - b.daysUntilStreakBreak,
+  )
+})
+const nextActivity = computed(() => {
+  return (
+    activitiesThatMustBeDoneToday.value.filter(
+      (a) => !a.didClearOnDay(date),
+    )[0] ||
+    activitiesThatAreOptionalToday.value.filter(
+      (a) => !a.didClearOnDay(date),
+    )[0] ||
+    null
+  )
 })
 
 const tempShiftIndex = ref<number>(-1)

@@ -3,7 +3,7 @@
     class="activity relative flexbetween"
     v-if="user"
     :key="appState.focusedDay.value + activity.id"
-    :class="{ hover }"
+    :class="{ hover, slowHover }"
     @mouseover="hover = true"
     @mouseleave="hover = false"
     @mousedown="hover = false"
@@ -30,17 +30,25 @@
         @mouseleave="hover = false"
       >
         <transition name="fadeIn">
-          <div
-            v-if="
-              slowHover &&
-              activity.inspiration &&
-              !activity.didClearOnDay(
-                appState.focusedDay.value,
-              )
-            "
-            class="inspiration"
-          >
-            {{ activity.inspiration }}
+          <div class="inspiration" v-if="slowHover">
+            <div v-if="activity.daysUntilStreakBreak">
+              {{ activity.daysUntilStreakBreak }} day{{
+                activity.daysUntilStreakBreak === 1
+                  ? ''
+                  : 's'
+              }}
+              left
+            </div>
+            <div
+              v-if="
+                activity.inspiration &&
+                !activity.didClearOnDay(
+                  appState.focusedDay.value,
+                )
+              "
+            >
+              {{ activity.inspiration }}
+            </div>
           </div>
         </transition>
 
@@ -52,7 +60,7 @@
             <div
               class="historyEntry"
               v-for="entry in activity.history.filter(
-                (h) => h !== -1,
+                (h) => ![-1, 1].includes(h),
               )"
               :class="{
                 completed: entry === 5,
@@ -197,7 +205,7 @@ watch(
         hoverTimer.value = setTimeout(() => {
           slowHover.value = false
         }, 10000)
-      }, 1000)
+      }, 500)
     } else {
       if (hoverTimer.value) clearTimeout(hoverTimer.value)
       slowHover.value = false
@@ -213,11 +221,28 @@ watch(
     (1 / var(--activityCount)) * 1em + 0.15em
   );
   cursor: default;
+  transition: box-shadow 0.2s;
+  position: relative;
 
   z-index: 1;
   &.hover {
-    z-index: 2;
+    z-index: 3;
   }
+
+  // &.slowHover {
+  //   &:after {
+  //     position: absolute;
+  //     content: '';
+  //     top: -0.2em;
+  //     left: -0.2em;
+  //     right: -0.2em;
+  //     bottom: -0.2em;
+  //     border-radius: var(--borderRadius);
+  //     box-shadow: 0 0.2em 0.5em rgba(black, 0.5);
+  //     z-index: 2;
+  //     pointer-events: none;
+  //   }
+  // }
 
   // .veryDue {
   //   text-decoration: underline;
@@ -294,10 +319,11 @@ watch(
     font-size: 0.85em;
     color: var(--textL);
     z-index: 10;
-    width: 100%;
+    width: calc(100% + 0.25em);
+    line-height: 1.3;
     white-space: initial;
     top: calc(100% + 0.9rem);
-    left: 0;
+    left: -0.25em;
     padding: 0.2em 0.5em;
     background: rgba(white, 0.95);
   }
@@ -308,11 +334,12 @@ watch(
     font-size: 0.5rem;
     color: var(--textL);
     z-index: 10;
-    width: 100%;
+    width: calc(100% + 0.25em);
+    overflow: hidden;
     white-space: initial;
     top: 100%;
-    left: 0;
-    padding: 0.2rem 0.5rem;
+    left: -0.25em;
+    padding: 0.2rem 0.25rem;
     background: rgba(white, 0.95);
     display: flex;
     gap: 2px;

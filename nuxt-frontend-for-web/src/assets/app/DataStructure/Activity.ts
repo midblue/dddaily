@@ -122,26 +122,27 @@ export class Activity extends Entity {
   get streakLeewayEitherDirection(): number {
     return this.exact ? 0 : Math.round(this.dayInterval / 2)
   }
-  get willBreakStreakIfNotDoneToday(): boolean {
+  get daysUntilStreakBreak(): number {
     const lastDone = this.lastDoneBeforeToday
-    if (!lastDone) return false
-    if (this.streak < 0) return true
-
+    if (!lastDone) return 0
     const today = c.dateToDateString()
     const daysSinceLastDone = Math.abs(
       c.daysBetween(lastDone, today),
     )
-    c.log(
-      this.name,
-      lastDone,
-      daysSinceLastDone,
-      daysSinceLastDone - this.dayInterval,
-      this.streakLeewayEitherDirection,
-    )
+    // c.log(
+    //   this.name,
+    //   lastDone,
+    //   daysSinceLastDone,
+    //   daysSinceLastDone - this.dayInterval,
+    //   this.streakLeewayEitherDirection,
+    // )
     return (
-      daysSinceLastDone - this.dayInterval >=
-      this.streakLeewayEitherDirection
+      this.streakLeewayEitherDirection -
+      (daysSinceLastDone - this.dayInterval)
     )
+  }
+  get willBreakStreakIfNotDoneToday(): boolean {
+    return this.daysUntilStreakBreak <= 0
   }
 
   /**
