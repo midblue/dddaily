@@ -113,7 +113,7 @@
           }"
           v-if="hover || activity.streak"
         >
-          <span
+          <!-- <span
             class="small"
             v-if="
               c.dateToDateString(
@@ -123,7 +123,7 @@
               activity.willBreakStreakIfNotDoneToday
             "
             >⚠️</span
-          >
+          > -->
 
           <template v-if="activity.streak > 0">
             <span

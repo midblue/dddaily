@@ -6,7 +6,7 @@
     "dev": "nuxt dev",
     "build": "nuxt build",
     "start": "nuxt start",
-    "golive": "node ~/Code/baton/dist p.jasperstephenson.com/dddaily_frontend"
+    "golive": "git push && ssh root@p.jasperstephenson.com 'source ~/.profile && cd ~/dddaily_frontend && git pull && /root/.nvm/versions/node/v16.17.1/bin/pm2 logs'"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
