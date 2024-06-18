@@ -300,7 +300,7 @@ const activitiesThatMustBeDoneToday = computed(() => {
   return (
     user.value
       ?.getActivitiesForDay(date)
-      .filter((a) => a.daysUntilStreakBreak === 0) || []
+      .filter((a) => a.daysUntilStreakBreak <= 0) || []
   )
 })
 const activitiesThatAreOptionalToday = computed(() => {

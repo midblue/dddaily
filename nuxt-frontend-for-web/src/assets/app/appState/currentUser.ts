@@ -79,15 +79,18 @@ export async function loadUser(
     if (
       currentUser.value?.today?.energy === undefined &&
       useRoute().path !== '/moodCheck'
-    )
+    ) {
+      c.log('Redirecting to mood check')
       useRouter().push('/moodCheck')
-    else if (
+    } else if (
       currentUser.value?.today?.energy !== undefined &&
       useRoute().path === '/moodCheck'
-    )
+    ) {
+      c.log('Redirecting to today')
       useRouter().push(
         `/day/${c.dateToDateString(new Date())}`,
       )
+    }
   })
 
   if (currentUser.value.today?.energy === undefined) {
