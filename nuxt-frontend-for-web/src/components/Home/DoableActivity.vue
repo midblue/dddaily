@@ -31,7 +31,7 @@
       >
         <transition name="fadeIn">
           <div class="inspiration" v-if="slowHover">
-            <div v-if="activity.daysUntilStreakBreak">
+            <div v-if="activity.daysUntilStreakBreak >= 0">
               {{ activity.daysUntilStreakBreak }} day{{
                 activity.daysUntilStreakBreak === 1
                   ? ''
