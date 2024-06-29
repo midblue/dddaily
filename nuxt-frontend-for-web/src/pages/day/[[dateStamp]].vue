@@ -77,7 +77,7 @@
               {{ nextActivity.name }}
               <div
                 class="sub"
-                style="font-size: 0.9rem"
+                style="font-size: 0.8rem"
                 v-if="nextActivity.inspiration"
               >
                 {{ nextActivity.inspiration }}

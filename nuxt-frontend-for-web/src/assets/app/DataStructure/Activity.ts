@@ -179,7 +179,6 @@ export class Activity extends Entity {
               streakLeewayEitherDirection
           ) {
             history.push(1)
-            lastDoneDate = new Date(allClears[i].date)
           } else {
             // c.log(
             //   daysBetween,
@@ -192,12 +191,17 @@ export class Activity extends Entity {
       }
     }
     history.reverse()
+    c.log(this.name, history.slice(0, 10))
 
     // remove trailing -1s
     while (history[history.length - 1] === -1) history.pop()
 
     // skip "failed to complete" if it's today and could still be done
     if ([0, 1].includes(history[0])) {
+      c.log(
+        'skipping failed to complete for today',
+        this.name,
+      )
       history = history.slice(1)
     }
 
