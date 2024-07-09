@@ -1,22 +1,24 @@
 {
   "scripts": {
-    "build": "tsc -w",
-    "build-once": "tsc",
-    "webfrontend": "cd ../nuxt-frontend-for-web && npm start",
-    "dev": "PORT=3004 nodemon ./dist/server/index.js --watch ./dist/server",
-    "golive": "git push && ssh root@p.jasperstephenson.com 'source ~/.profile && cd ~/dddaily && git pull && nvm use 18 && cd ./server && npm run build-once && cd ../ && /root/.nvm/versions/node/v16.17.1/bin/pm2 restart dddaily && /root/.nvm/versions/node/v16.17.1/bin/pm2 logs'"
+    "dev": "PORT=3004 nuxi dev",
+    "golive": "git push && ssh root@p.jasperstephenson.com 'source ~/.profile && cd ~/dddaily && git pull && nvm use 18 && npm install && /root/.nvm/versions/node/v16.17.1/bin/pm2 restart dddaily && /root/.nvm/versions/node/v16.17.1/bin/pm2 logs'"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
-    "nodemon": "^3.0.1",
-    "typescript": "^5.2.2"
+    "nodemon": "^3.1.4",
+    "nuxt": "^3.12.3",
+    "ufo": "1.5.3",
+    "vue-tsc": "^2.0.26"
   },
   "dependencies": {
     "@types/express": "^4.17.20",
     "axios": "^1.5.1",
     "bcrypt": "^5.1.1",
+    "click-outside-vue3": "^4.0.1",
     "cors": "^2.8.5",
     "express": "^4.18.2",
+    "sass": "^1.77.6",
+    "typescript": "^5.5.3",
     "unstorage": "^1.9.0"
   }
 }

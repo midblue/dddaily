@@ -1,8 +1,8 @@
 {
-  "include": ["./server/**/*", "@types"],
+  "extends": "./.nuxt/tsconfig.json",
   "compilerOptions": {
     "target": "ESNext",
-    "module": "NodeNext",
+    "module": "ESNext",
     "strict": true,
     "esModuleInterop": true,
     "outDir": "./dist",

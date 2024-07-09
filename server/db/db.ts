@@ -1,16 +1,29 @@
 import * as c from '../../common'
 
-import {
-  Storage,
-  StorageValue,
-  createStorage,
-} from 'unstorage'
+import { createStorage } from 'unstorage'
+import type { Storage, StorageValue } from 'unstorage'
 import fsDriver from 'unstorage/drivers/fs'
 import path from 'path'
 
+import * as dbEmptyFolderCleanup from '../upkeep/dbEmptyFolderCleanup'
+import * as dbBackup from '../upkeep/dbBackup'
+
+dbEmptyFolderCleanup.start()
+dbBackup.start()
+
+//* -----------------------------
+
+const structure = {
+  User: {
+    Activity: {},
+  },
+}
+
+//* -----------------------------
+
 const storage: Storage<StorageValue> = createStorage({
   driver: fsDriver({
-    base: path.join(__dirname, '../../../', 'data'),
+    base: path.join('./', 'data'),
   }),
 })
 
@@ -32,12 +45,6 @@ export async function getWithoutChildren<
   return baseData
 }
 
-const structure = {
-  User: {
-    Activity: {},
-    Identity: {},
-  },
-}
 function subPropTypeNameToConstructorParamName(
   typeName: string,
 ) {

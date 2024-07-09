@@ -4,8 +4,8 @@ import fs from 'fs'
 
 let backupInterval: NodeJS.Timeout
 const backupTime = 1000 * 60 * 60 * 24 // 1 day
-const backupPath = path.join(__dirname, '../../../backups')
-const dataPath = path.join(__dirname, '../../../data')
+const backupPath = path.join('./', 'backups')
+const dataPath = path.join('./', 'data')
 const maxBackups = 30
 
 async function backUp() {
@@ -57,7 +57,7 @@ async function backUp() {
     c.log('red', 'Error removing old backups', e)
   }
 
-  const date = c.dateToDateString()
+  const date = Date.now()
   const backupName = `${date}`
   const backupFolder = path.join(backupPath, backupName)
   try {
@@ -91,6 +91,8 @@ async function copyDirDeep(src: string, dest: string) {
   }
 }
 
-backupInterval = setInterval(backUp, backupTime)
+export function start() {
+  backupInterval = setInterval(backUp, backupTime)
 
-setTimeout(backUp, 1000 * 10)
+  setTimeout(backUp, 1000 * 10)
+}

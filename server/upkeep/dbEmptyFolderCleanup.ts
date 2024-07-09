@@ -2,12 +2,10 @@ import path from 'path'
 import * as c from '../../common'
 import fs from 'fs'
 
-setInterval(cleanUp, 1000 * 60 * 60)
-setTimeout(cleanUp, 1000 * 3)
-
-const dataFolderPath = path.join(__dirname, '../../../data')
+const dataFolderPath = path.join('./', 'data')
 
 function cleanUp() {
+  c.log('blue', 'Cleaning up empty folders')
   // scan recursively for empty folders and remove them
   const emptyFolders = new Set<string>()
 
@@ -41,4 +39,9 @@ function cleanUp() {
       'gray',
       `Cleaned up ${emptyFolders.size} empty folders`,
     )
+}
+
+export function start() {
+  setInterval(cleanUp, 1000 * 60 * 60)
+  setTimeout(cleanUp, 1000 * 3)
 }
