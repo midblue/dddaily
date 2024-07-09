@@ -113,17 +113,16 @@
           }"
           v-if="hover || activity.streak"
         >
-          <!-- <span
+          <span
             class="small"
             v-if="
               c.dateToDateString(
                 appState.focusedDay.value,
               ) === c.dateToDateString() &&
-              !activity.didClearOnDay() &&
-              activity.willBreakStreakIfNotDoneToday
+              activity.daysUntilStreakBreak < 0
             "
             >⚠️</span
-          > -->
+          >
 
           <template v-if="activity.streak > 0">
             <span
@@ -161,7 +160,8 @@
         v-if="
           c.dateToDateString(appState.focusedDay.value) ===
             c.dateToDateString() &&
-          !activity.exact &&
+          (activity.daysUntilStreakBreak >= 1 ||
+            !activity.exact) &&
           user.today?.backupActivityIds?.length &&
           !activity.didClearOnDay(appState.focusedDay.value)
         "
