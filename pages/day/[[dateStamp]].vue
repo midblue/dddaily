@@ -251,7 +251,12 @@
         </div>
       </div>
 
-      <div class="padleft padright flexcenter marbotbig">
+      <div
+        class="padleft padright flexcolumn flexcenter marbotbig"
+      >
+        <div class="sub marbotsmall">
+          Hi, {{ user.id }}!
+        </div>
         <button
           class="secondary"
           @click="appState.logOut()"

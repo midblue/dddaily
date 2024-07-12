@@ -116,6 +116,9 @@
           <span
             class="small"
             v-if="
+              !activity.didClearOnDay(
+                appState.focusedDay.value,
+              ) &&
               c.dateToDateString(
                 appState.focusedDay.value,
               ) === c.dateToDateString() &&

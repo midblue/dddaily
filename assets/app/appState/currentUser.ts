@@ -40,7 +40,7 @@ export const userIsProbablyActivelyUsingApp = () => {
   )
 }
 
-let isLoadingUser = false
+// let isLoadingUser = false
 export async function loadUser(
   id?: string,
   password?: string,
@@ -62,13 +62,13 @@ export async function loadUser(
     return { error: 'Missing either username or password.' }
   }
 
-  if (isLoadingUser) {
-    c.log('Already loading user')
-    return { error: 'Already loading user.' }
-  }
+  // if (isLoadingUser) {
+  //   c.log('Already loading user')
+  //   return { error: 'Already loading user.' }
+  // }
 
   c.log('Loading user', id, '...')
-  isLoadingUser = true
+  // isLoadingUser = true
 
   const userData = await loadFullUserData(id)
   if (!userData) {
@@ -90,7 +90,7 @@ export async function loadUser(
   }
 
   c.log('Loaded user', id, userData)
-  isLoadingUser = false
+  // isLoadingUser = false
 
   currentUser.value = new User(userData)
   if (useRouter().currentRoute.value.path === '/login') {

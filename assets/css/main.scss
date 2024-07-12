@@ -83,6 +83,9 @@ a:hover,
 .highlight {
   color: var(--highlight);
 }
+.highlight2 {
+  color: var(--highlightD);
+}
 .freebie {
   color: var(--freebie);
 }
@@ -763,6 +766,9 @@ button,
 
 .relative {
   position: relative;
+}
+.absolute {
+  position: absolute;
 }
 
 .z2 {

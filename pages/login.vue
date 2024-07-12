@@ -1,6 +1,6 @@
 <template>
   <PageTemplate>
-    <h1 class="textcenter marbotbig bold">DDDaily</h1>
+    <h1 class="marbot bold highlight">DDDaily</h1>
     <div
       v-if="!loading"
       class="flexcolumn flexcenter gap login"
@@ -19,9 +19,9 @@
       <br />
       <button @click="tryLogIn">Go</button> -->
 
-      <form class="flexcolumn flexcenter gap textcenter">
-        <div class="marbotbig">
-          <h3>I am</h3>
+      <form class="flexcolumn flexverticalcenter gap">
+        <div class="marbotbig padbot">
+          <h3 class="marnone">I am</h3>
           <input
             class="big"
             v-model="inputUserId"
@@ -35,26 +35,30 @@
         </div>
 
         <div class="marbotbig">
-          <h3>and my password is</h3>
-          <input
-            class="big"
-            v-model="inputPassword"
-            type="password"
-            autocapitalize="false"
-            autocomplete="false"
-            autocorrect="false"
-            spellcheck="false"
-          />
+          <h3 class="marnone">and my password is</h3>
+          <div>
+            <input
+              class="big"
+              v-model="inputPassword"
+              placeholder="Your password here..."
+              type="password"
+              autocapitalize="false"
+              autocomplete="false"
+              autocorrect="false"
+              spellcheck="false"
+            />
+          </div>
+          <div class="sub fade martop">
+            (Make one up if you don't have one yet!)
+          </div>
         </div>
 
-        <div class="flexstretch gap">
-          <input
-            type="submit"
-            class="button"
-            @click="tryLogIn"
-            value="Go"
-          />
-        </div>
+        <input
+          type="submit"
+          class="button big fullwidth"
+          @click="tryLogIn"
+          value="Go"
+        />
       </form>
 
       <div class="warning" v-if="message">
@@ -126,6 +130,9 @@ async function tryLogIn() {
 </script>
 
 <style lang="scss" scoped>
+h1 {
+  font-size: 4rem;
+}
 .login {
   & > * {
     flex-grow: 0;
@@ -133,6 +140,6 @@ async function tryLogIn() {
 }
 input {
   max-width: 100%;
-  text-align: center;
+  // text-align: center;
 }
 </style>
