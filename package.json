@@ -1,6 +1,8 @@
 {
   "scripts": {
     "dev": "PORT=3004 nuxi dev",
+    "build": "nuxi build",
+    "start": "nuxi start",
     "golive": "git push && ssh root@p.jasperstephenson.com 'source ~/.profile && cd ~/dddaily && git pull && nvm use 18 && npm install && /root/.nvm/versions/node/v16.17.1/bin/pm2 restart dddaily && /root/.nvm/versions/node/v16.17.1/bin/pm2 logs'"
   },
   "devDependencies": {

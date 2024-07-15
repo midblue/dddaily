@@ -827,7 +827,7 @@ function getAcceptableEffort(
               // turns down the optional requirement if there are many due activities
               optionalRatio *
               (energy * 0.5),
-          totalEffort * 0.95,
+          totalEffort * 0.9,
         ),
         totalEffort * (0.3 + energy * 0.5),
       ),

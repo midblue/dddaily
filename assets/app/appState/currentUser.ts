@@ -103,7 +103,9 @@ export async function loadUser(
       currentUser.value?.today?.energy === undefined &&
       useRoute().path !== '/moodCheck'
     ) {
-      c.log('Redirecting to mood check')
+      c.log(
+        `Redirecting to mood check because today's energy is ${currentUser.value?.today?.energy}`,
+      )
       useRouter().push('/moodCheck')
     } else if (
       currentUser.value?.today?.energy !== undefined &&
@@ -120,7 +122,10 @@ export async function loadUser(
     currentUser.value.today?.energy === undefined &&
     useRoute().path !== '/moodCheck'
   ) {
-    c.log('gray', 'Redirecting to mood check')
+    c.log(
+      'gray',
+      `Redirecting to mood check because today's energy is ${currentUser.value.today?.energy}`,
+    )
     useRouter().push('/moodCheck')
   } else {
     c.log('gray', 'Redirecting to day', focusedDay.value)
