@@ -9,7 +9,7 @@
     >
       <Confetti
         v-if="
-          appState.focusedDayIsToday &&
+          appState.focusedDayIsToday.value &&
           user.didMaxClearOnDay()
         "
         style="
@@ -21,7 +21,8 @@
       />
       <Confetti
         v-else-if="
-          appState.focusedDayIsToday && user.didClearOnDay()
+          appState.focusedDayIsToday.value &&
+          user.didClearOnDay()
         "
         style="
           z-index: 1000;
