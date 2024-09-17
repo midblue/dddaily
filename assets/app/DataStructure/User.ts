@@ -666,6 +666,33 @@ export class User extends Entity {
       .filter((a) => !!a) as Activity[]
   }
 
+  getNextEntry(
+    date: DateString | Date,
+  ): DatedResults[0] | null {
+    if (date instanceof Date)
+      date = c.dateToDateString(date)
+    const found = this.clears.find((c) => c.date === date)
+    if (found) {
+      const index = this.clears.indexOf(found)
+      return this.clears[index + 1] || null
+    }
+    return null
+  }
+
+  getPreviousEntry(
+    date: DateString | Date,
+  ): DatedResults[0] | null {
+    if (date instanceof Date)
+      date = c.dateToDateString(date)
+    const found = this.clears.find((c) => c.date === date)
+    if (found) {
+      const index = this.clears.indexOf(found)
+      c.log(index, JSON.stringify(this.clears[index - 1]))
+      return this.clears[index - 1] || null
+    }
+    return null
+  }
+
   moveActivity(activity: Activity, relativeIndex: number) {
     const foundIndex = this.activityIdOrder.findIndex(
       (a) => a === activity.id,
@@ -710,11 +737,25 @@ export class User extends Entity {
     //   (found.effortExpended || 0) >=
     //     (found.acceptableEffort || -1),
     // )
+
+    // * we count days where the user used a freebie as cleared
+    const usedFreebie = found.usedFreebie
+
+    // * we count days where the user matched the acceptable effort as cleared
+    const clearedAcceptableEffort =
+      !!found.maxEffort &&
+      (found.effortExpended || 0) >=
+        (found.acceptableEffort || -1)
+
+    // * we also count days where the list was never generated as cleared
+    // but not days older than the oldest entry, handled by found check above
+    const noActivitiesForDay =
+      Object.keys(found.clears).length === 0
+
     return (
-      found.usedFreebie ||
-      (!!found.maxEffort &&
-        (found.effortExpended || 0) >=
-          (found.acceptableEffort || -1))
+      usedFreebie ||
+      clearedAcceptableEffort ||
+      noActivitiesForDay
     )
   }
   didMaxClearOnDay(
@@ -793,6 +834,10 @@ export class User extends Entity {
     }
 
     this.save(['clears'])
+  }
+
+  get oldestEntry(): DatedResults[0] | null {
+    return this.clears[0] || null
   }
 }
 

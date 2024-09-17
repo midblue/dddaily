@@ -42,12 +42,14 @@
                 c.dateToDateString(date) !==
                 c.dateToDateString()
               "
+              class="small textcenter"
             >
               {{
                 date.toLocaleDateString('en-US', {
                   weekday: 'long',
-                  month: 'long',
+                  month: 'short',
                   day: 'numeric',
+                  year: 'numeric',
                 })
               }}
             </div>
@@ -88,14 +90,56 @@
             </div>
           </h1>
 
-          <nuxt-link
+          <div
             v-if="
               c.dateToDateString(date) !==
               c.dateToDateString()
             "
-            :to="`/day/${c.dateToDateString()}`"
-            ><button>Now</button></nuxt-link
+            class="marbotsmall flexcolumn flexcenter"
           >
+            <div class="nowrap">
+              ⚠️ This is
+              {{ c.daysBetween(date, new Date()) }} day{{
+                c.daysBetween(date, new Date()) === 1
+                  ? ''
+                  : 's'
+              }}
+              ago.
+            </div>
+
+            <div class="flex gaptiny">
+              <nuxt-link
+                v-if="user.oldestEntry"
+                class="small"
+                :class="{
+                  disabled: !user.getPreviousEntry(date),
+                }"
+                :to="`/day/${
+                  user.getPreviousEntry(date)?.date
+                }`"
+                ><button class="secondary">
+                  <
+                </button></nuxt-link
+              >
+
+              <nuxt-link
+                class="small"
+                :to="`/day/${c.dateToDateString()}`"
+                ><button>Today</button></nuxt-link
+              >
+
+              <nuxt-link
+                class="small"
+                v-if="user.getNextEntry(date)"
+                :to="`/day/${
+                  user.getNextEntry(date)?.date
+                }`"
+                ><button class="secondary">
+                  >
+                </button></nuxt-link
+              >
+            </div>
+          </div>
 
           <!-- <div class="small flex gap marbotsmall">
           <div>🔋 {{ (user.today?.energy || 0) * 10 }}</div>

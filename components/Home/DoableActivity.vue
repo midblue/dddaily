@@ -122,7 +122,8 @@
               c.dateToDateString(
                 appState.focusedDay.value,
               ) === c.dateToDateString() &&
-              activity.daysUntilStreakBreak < 0
+              (activity.daysUntilStreakBreak < 0 ||
+                activity.missedInARow === 1)
             "
             >⚠️</span
           >

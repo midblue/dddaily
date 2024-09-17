@@ -254,7 +254,7 @@ const pointsWithRelevantXp = computed(() => {
       if (mood !== undefined) prevXp = mood
       return [
         date,
-        mood || prevXp,
+        mood || prevXp || 0.5,
         didClear,
         !!didUseFreebie,
         mood !== undefined,

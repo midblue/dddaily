@@ -144,10 +144,20 @@ export class Activity extends Entity {
   get willBreakStreakIfNotDoneToday(): boolean {
     return this.daysUntilStreakBreak <= 0
   }
+  get missedInARow(): number {
+    const history = this.history
+    let missedInARow = 0
+    for (let i = 0; i < history.length; i++) {
+      if (history[i] === -1) continue
+      else if (history[i] === 0) missedInARow++
+      else break
+    }
+    return missedInARow
+  }
 
   /**
-   * array going back in time from today in new-to-old order
-   * where -1 is "was not assigned",
+   * array going back in time from today in new-to-old order where
+   * -1 is "was not assigned",
    * 0 is "failed to complete and streak ended",
    * 1 is "failed to complete but was within leeway limit",
    * and 5 is "completed"
