@@ -3,6 +3,9 @@ import * as bcrypt from 'bcrypt'
 import * as db from './db/db'
 import type { H3Event } from 'h3'
 
+import { config } from 'dotenv'
+config()
+
 export default async function getAuthedUser(
   event: H3Event,
 ): Promise<UserDbData | undefined> {

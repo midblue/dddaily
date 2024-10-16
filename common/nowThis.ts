@@ -40,6 +40,7 @@ export function getUpdatedClears(
     if (oldClear) {
       newClears.push(oldClear)
     } else {
+      // * this is causing data loss if there is a network isssue
       newClears.push({ date: dateString, clears: {} })
     }
     currentDate = date.dateToDateString(
