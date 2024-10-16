@@ -38,7 +38,7 @@ async function backUp() {
     ).length
     while (backupCount >= maxBackups) {
       const oldestBackup = backups.sort((a, b) => {
-        return a.name > b.name ? 1 : -1
+        return new Date(a.name) < new Date(b.name) ? 1 : -1
       })[0]
       c.log(
         'gray',
