@@ -3,7 +3,7 @@
     "dev": "PORT=3004 nuxi dev",
     "build": "nuxi build",
     "start": "nuxi start",
-    "golive": "git push && ssh root@p.jasperstephenson.com 'source ~/.profile && cd ~/dddaily && nvm use 18 && pnpm install && npm run build && nvm use 16 && pm2 restart dddaily && pm2 logs'"
+    "golive": "git push && ssh root@p.jasperstephenson.com 'source ~/.profile && cd ~/dddaily && git pull && nvm use 18 && pnpm install && npm run build && nvm use 16 && pm2 restart dddaily && pm2 logs'"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",

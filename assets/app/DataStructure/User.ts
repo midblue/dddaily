@@ -819,7 +819,11 @@ export class User extends Entity {
     }
 
     if (
-      results.effortExpended >= (results.maxEffort || 10000)
+      results.effortExpended >=
+        (results.maxEffort || 10000) &&
+      Object.entries(results.clears).every(
+        ([a, b]) => b === 1,
+      )
     ) {
       c.log('full clear!')
 

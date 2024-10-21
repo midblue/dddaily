@@ -5,6 +5,7 @@ type TimeString = `${number}:${number}:${number}.${number}`
 /** YYYY-MM-DDThh:mm */
 type DateTimeString = `${DateString}T${TimeString}`
 
+/** 0: did not clear, 1: did clear */
 type Clear = 0 | 1
 type DatedResults = {
   date: DateString

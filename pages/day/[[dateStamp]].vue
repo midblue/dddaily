@@ -100,8 +100,11 @@
           >
             <div class="nowrap">
               ⚠️ This is
-              {{ c.daysBetween(date, new Date()) }} day{{
-                c.daysBetween(date, new Date()) === 1
+              {{
+                c.daysBetween(date, new Date()) + 1
+              }}
+              day{{
+                c.daysBetween(date, new Date()) + 1 === 1
                   ? ''
                   : 's'
               }}
