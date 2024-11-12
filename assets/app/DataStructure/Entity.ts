@@ -70,7 +70,7 @@ export abstract class Entity {
       keys,
       this.constructor.name,
       this.id,
-      this[keys![0]],
+      keys && this[keys[0]],
     )
 
     let updatedDate = new Date()
