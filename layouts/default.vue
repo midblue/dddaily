@@ -34,6 +34,17 @@
 import * as c from '~/common'
 import * as appState from '~/assets/app/appState'
 
+useHead({
+  script: [
+    {
+      src: 'https://umm.jasperstephenson.com/script.js',
+      defer: true,
+      'data-website-id':
+        'ac8e2245-b96a-41fc-b771-7fa92da3d4f5',
+    },
+  ],
+})
+
 onMounted(async () => {
   updateWindowSizeVars()
   window.addEventListener('resize', updateWindowSizeVars)
