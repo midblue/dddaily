@@ -5,6 +5,8 @@ import getAuthedUser from '../getAuthedUser'
 export default defineEventHandler(async (event) => {
   const user = await getAuthedUser(event)
   if (!user) {
+    c.log('gray', '  Auth failed')
+    setResponseStatus(event, 401)
     return { status: 401, body: { message: 'Invalid' } }
   }
 
@@ -13,6 +15,8 @@ export default defineEventHandler(async (event) => {
 
   const path = body.path as GettablePath
   if (!path || !Array.isArray(path) || path.length < 1) {
+    c.log('gray', '  Invalid path', path)
+    setResponseStatus(event, 401)
     return {
       status: 401,
       body: { message: 'Invalid path' },
@@ -26,6 +30,7 @@ export default defineEventHandler(async (event) => {
       : 'x')
   if (userInPath !== user.id) {
     c.log('gray', '  User not authorized to remove data')
+    setResponseStatus(event, 401)
     return { status: 401, body: { message: 'Invalid' } }
   }
 
@@ -34,10 +39,13 @@ export default defineEventHandler(async (event) => {
       `users/User-${userInPath}`,
     )
   if (!naiveUserData) {
+    c.log('gray', '  User not authorized to remove data')
+    setResponseStatus(event, 401)
     return { status: 401, body: { message: 'Invalid' } }
   }
 
   c.log('gray', '  Removing', path)
   await db.remove(path)
+  setResponseStatus(event, 200)
   return { status: 200, body: { ok: true } }
 })

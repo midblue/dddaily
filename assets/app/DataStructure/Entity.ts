@@ -67,7 +67,7 @@ export abstract class Entity {
     c.log(
       'gray',
       'save',
-      keys,
+      { keys },
       this.constructor.name,
       this.id,
       keys && this[keys[0]],
@@ -109,11 +109,11 @@ export abstract class Entity {
     dataToSave.updated = this.updated
     dataToSave.localVersion = this.localVersion
 
-    c.log(
-      'sending data',
-      dataToSave,
-      JSON.stringify(dataToSave).length,
-    )
+    // c.log(
+    //   'sending data',
+    //   dataToSave,
+    //   JSON.stringify(dataToSave).length,
+    // )
 
     const saveRes = await saveElement({
       elementToSave: dataToSave,

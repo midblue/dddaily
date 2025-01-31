@@ -4,11 +4,6 @@ import * as bcrypt from 'bcrypt'
 import getAuthedUser from '../getAuthedUser'
 
 export default defineEventHandler(async (event) => {
-  const user = await getAuthedUser(event)
-  if (!user) {
-    return { status: 401, body: { message: 'Invalid' } }
-  }
-
   const body = await readBody(event)
   // c.log('gray', '    /get POST request', body)
 
@@ -18,6 +13,8 @@ export default defineEventHandler(async (event) => {
     !body.parentPath ||
     !Array.isArray(body.parentPath)
   ) {
+    c.log('red', '  Invalid body', body)
+    setResponseStatus(event, 400)
     return {
       status: 400,
       body: { message: 'Missing Params' },
@@ -28,6 +25,7 @@ export default defineEventHandler(async (event) => {
 
   if (!type) {
     c.log('red', '  Invalid type', saveableData)
+    setResponseStatus(event, 400)
     return {
       status: 400,
       body: { message: 'Missing Params' },
@@ -43,6 +41,13 @@ export default defineEventHandler(async (event) => {
     type !== 'User' ||
     (type === 'User' && existingData)
   ) {
+    const user = await getAuthedUser(event)
+    if (!user) {
+      c.log('gray', '    Auth failed')
+      setResponseStatus(event, 401)
+      return { status: 401, body: { message: 'Invalid' } }
+    }
+
     const userInPath =
       body.parentPath[0]?.id ||
       (body.elementToSave.type === 'User'
@@ -50,6 +55,7 @@ export default defineEventHandler(async (event) => {
         : 'x')
     if (userInPath !== user.id) {
       c.log('gray', '  User not authorized to update data')
+      setResponseStatus(event, 401)
       return { status: 401, body: { message: 'Invalid' } }
     }
   }
@@ -59,6 +65,7 @@ export default defineEventHandler(async (event) => {
   const add = !existingData
   if (existingData && !existingData.id) {
     c.log('red', 'Invalid existingData', existingData)
+    setResponseStatus(event, 400)
     return { status: 400, body: { message: 'Invalid' } }
   }
   if (
@@ -88,6 +95,8 @@ export default defineEventHandler(async (event) => {
   // * add hashed password on user creation
   if (add && type === 'User') {
     if (!headers.get('authorization')) {
+      c.log('red', '  Missing password')
+      setResponseStatus(event, 401)
       return { status: 401, body: { message: 'Invalid' } }
     }
     ;(dataToSave as any).hashedPassword = bcrypt.hashSync(
@@ -110,9 +119,11 @@ export default defineEventHandler(async (event) => {
       elementToSave: dataToSave,
       parentPath: saveableData.parentPath,
     })
+    setResponseStatus(event, 200)
     return { status: 200, body: { ok: true } }
   } catch (e) {
     c.log('red', '  Error saving', e)
+    setResponseStatus(event, 500)
     return {
       status: 500,
       body: { message: 'Error saving' },

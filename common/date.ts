@@ -35,16 +35,20 @@ export function addDaysToDate(
 }
 
 export function daysBetween(
-  a: Date | DateString | DateTimeString,
-  b: Date | DateString | DateTimeString,
-) {
-  const aMs = new Date(a).getTime()
-  const bMs = new Date(b).getTime()
-  const msBetween = Math.abs(aMs - bMs)
-  const daysBetween = Math.floor(
-    msBetween / (1000 * 60 * 60 * 24),
+  a: Date | string,
+  b: Date | string,
+): number {
+  const aDate = new Date(a)
+  const bDate = new Date(b)
+
+  // Normalize to the start of the respective calendar days
+  aDate.setHours(0, 0, 0, 0)
+  bDate.setHours(0, 0, 0, 0)
+
+  return Math.abs(
+    (aDate.getTime() - bDate.getTime()) /
+      (1000 * 60 * 60 * 24),
   )
-  return daysBetween
 }
 
 export function hour24ToHour12(hour24: number): string {

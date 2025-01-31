@@ -732,6 +732,8 @@ export class User extends Entity {
         this.clears.find((clear) => clear.date === day) ||
         null
     if (!found) return false
+    if (!Object.keys(found.clears).length) return false
+
     // c.log(
     //   found,
     //   (found.effortExpended || 0) >=
@@ -775,6 +777,7 @@ export class User extends Entity {
         this.clears.find((clear) => clear.date === day) ||
         null
     if (!found) return false
+    if (!Object.keys(found.clears).length) return false
     return (
       !!found.maxEffort &&
       (found.effortExpended || 0) >= (found.maxEffort || -1)
@@ -827,7 +830,10 @@ export class User extends Entity {
     ) {
       c.log('full clear!')
 
-      if (!results.awardedFreebie) {
+      if (
+        !results.awardedFreebie &&
+        this.freebiesAvailable < maxFreebies
+      ) {
         results.awardedFreebie = true
         this.freebiesAvailable = c.clamp(
           0,

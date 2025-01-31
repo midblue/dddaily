@@ -83,6 +83,7 @@ export async function loadUser(
       'User exists, but not accessible (wrong password)',
       id,
     )
+    c.log('Redirecting to login')
     useRouter().push('/login')
     return { error: 'Incorrect password.' }
     // const user = await createUser(id, password)
@@ -94,11 +95,13 @@ export async function loadUser(
 
   currentUser.value = new User(userData)
   if (useRouter().currentRoute.value.path === '/login') {
+    c.log('Redirecting to index from login')
     useRouter().push('/')
   }
 
   currentUser.value.passiveReset()
   currentUser.value.addPassiveHook(() => {
+    // c.log('passive reset')
     if (
       currentUser.value?.today?.energy === undefined &&
       useRoute().path !== '/moodCheck'
@@ -171,6 +174,7 @@ export async function createUser(
 }
 
 export function logOut() {
+  c.log('Logging out')
   setUserId('')
   setPassword('')
   useRouter().push('/login')

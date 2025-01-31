@@ -75,17 +75,27 @@ async function passiveReset() {
   //   ),
   // )
   if (!(await appState.networkCheck())) {
+    c.log('app is offline')
     useRouter().replace(`/offline`)
     return
-  } else if (useRoute().path.includes('offline'))
+  } else if (useRoute().path.includes('offline')) {
+    c.log('app is back online, returning home')
     useRouter().replace(`/`)
+  }
 
   appState.currentUser.value?.passiveReset()
-  if (!appState.getPassword())
+  if (!appState.getPassword()) {
+    c.log('no password, redirecting to login')
     return useRouter().replace(`/login`)
+  }
 
-  if (!appState.currentUser.value?.today?.energy)
+  if (
+    !appState.currentUser.value?.today?.energy &&
+    useRoute().path !== '/moodCheck'
+  ) {
+    c.log('no energy, redirecting to index')
     return useRouter().replace(`/`)
+  }
 }
 function onWindowInteract() {
   // c.log('interact')

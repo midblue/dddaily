@@ -92,8 +92,8 @@ async function sendElementForRemoteSave(
     },
   )
     .then((res) => {
-      // console.log(res)
-      return true
+      console.log(res)
+      return res.status === 200
     })
     .catch((error) => {
       c.error(

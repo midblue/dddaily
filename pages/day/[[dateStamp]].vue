@@ -100,11 +100,9 @@
           >
             <div class="nowrap">
               ⚠️ This is
-              {{
-                c.daysBetween(date, new Date()) + 1
-              }}
+              {{ c.daysBetween(date, new Date()) }}
               day{{
-                c.daysBetween(date, new Date()) + 1 === 1
+                c.daysBetween(date, new Date()) === 1
                   ? ''
                   : 's'
               }}
@@ -152,7 +150,25 @@
           </div>
           </div> -->
 
-          <HomeMainProgressBar />
+          <HomeMainProgressBar
+            v-if="user.activities.length"
+          />
+          <div class="martopbig" v-else>
+            <div
+              class="button fullwidth"
+              @click="newActivity"
+            >
+              <div
+                class="flexcenter gapsmall padtopsmall padbotsmall"
+              >
+                <img
+                  class="icon 07"
+                  src="/icons/plus-white.svg"
+                />
+                New Activity
+              </div>
+            </div>
+          </div>
 
           <div
             class="todaysActivitiesList martop relative z2"
@@ -229,6 +245,7 @@
         </div>
 
         <HomeGraph
+          v-if="user.activities.length"
           class="marbot windowwidth"
           :key="user.today?.effortExpended"
           :toGraph="
