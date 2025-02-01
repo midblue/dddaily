@@ -16,16 +16,16 @@ import {
 import { networkCheck } from './general'
 import { checkUserExists } from '../storage/remote'
 
+export const loadingUser = ref(false)
 export const currentUser: Ref<User | null> =
   ref<User | null>(null) as any
 export const currentPassword: Ref<string> = ref('')
 
-export const focusedDay: Ref<Date> = ref(new Date())
+export const focusedDay: Ref<DateString> = ref(
+  c.dateToDateString(),
+)
 export const focusedDayIsToday = computed(() => {
-  return (
-    c.dateToDateString(focusedDay.value) ===
-    c.dateToDateString(new Date())
-  )
+  return c.daysBetween(new Date(), focusedDay.value) === 0
 })
 
 export let lastUserInteractionTimestampMs: Ref<number> =
@@ -40,7 +40,6 @@ export const userIsProbablyActivelyUsingApp = () => {
   )
 }
 
-// let isLoadingUser = false
 export async function loadUser(
   id?: string,
   password?: string,
@@ -62,13 +61,8 @@ export async function loadUser(
     return { error: 'Missing either username or password.' }
   }
 
-  // if (isLoadingUser) {
-  //   c.log('Already loading user')
-  //   return { error: 'Already loading user.' }
-  // }
-
   c.log('Loading user', id, '...')
-  // isLoadingUser = true
+  loadingUser.value = true
 
   const userData = await loadFullUserData(id)
   if (!userData) {
@@ -91,7 +85,7 @@ export async function loadUser(
   }
 
   c.log('Loaded user', id, userData)
-  // isLoadingUser = false
+  loadingUser.value = false
 
   currentUser.value = new User(userData)
   if (useRouter().currentRoute.value.path === '/login') {
@@ -132,9 +126,7 @@ export async function loadUser(
     useRouter().push('/moodCheck')
   } else {
     c.log('gray', 'Redirecting to day', focusedDay.value)
-    useRouter().push(
-      `/day/${c.dateToDateString(focusedDay.value)}`,
-    )
+    useRouter().push(`/day/${focusedDay.value}`)
   }
 
   return currentUser.value as User

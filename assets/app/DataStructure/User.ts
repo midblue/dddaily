@@ -485,8 +485,11 @@ export class User extends Entity {
     }
   }
 
-  swapActivityOnDay(day = new Date(), activityId: string) {
-    c.log(activityId)
+  swapActivityOnDay(
+    day: Date | DateString = new Date(),
+    activityId: string,
+  ) {
+    if (typeof day === 'string') day = new Date(day)
     const results = this.getResultsForDay(
       c.dateToDateString(day),
     )
@@ -523,10 +526,11 @@ export class User extends Entity {
   }
 
   addActivityOnDay(
-    day = new Date(),
+    day: Date | DateString = new Date(),
     specificActivity?: Activity,
   ): boolean {
     c.log('addActivityOnDay')
+    if (typeof day === 'string') day = new Date(day)
     const results = this.getResultsForDay(
       c.dateToDateString(day),
     )
@@ -687,7 +691,7 @@ export class User extends Entity {
     const found = this.clears.find((c) => c.date === date)
     if (found) {
       const index = this.clears.indexOf(found)
-      c.log(index, JSON.stringify(this.clears[index - 1]))
+      // c.log(index, JSON.stringify(this.clears[index - 1]))
       return this.clears[index - 1] || null
     }
     return null

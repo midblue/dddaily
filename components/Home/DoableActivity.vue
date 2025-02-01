@@ -20,7 +20,7 @@
         @update="
           user.clearActivity(
             activity,
-            c.dateToDateString(appState.focusedDay.value),
+            appState.focusedDay.value,
             $event ? 1 : 0,
           )
         "
@@ -119,9 +119,8 @@
               !activity.didClearOnDay(
                 appState.focusedDay.value,
               ) &&
-              c.dateToDateString(
-                appState.focusedDay.value,
-              ) === c.dateToDateString() &&
+              appState.focusedDay.value ===
+                c.dateToDateString() &&
               (activity.daysUntilStreakBreak < 0 ||
                 activity.missedInARow === 1)
             "
@@ -162,7 +161,7 @@
 
       <div
         v-if="
-          c.dateToDateString(appState.focusedDay.value) ===
+          appState.focusedDay.value ===
             c.dateToDateString() &&
           (activity.daysUntilStreakBreak >= 1 ||
             !activity.exact) &&

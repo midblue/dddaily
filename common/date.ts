@@ -5,6 +5,12 @@ export function dateToDateString(d?: Date): DateString {
   if (month < 10) month = `0${month}`
   let day: any = date.getDate()
   if (day < 10) day = `0${day}`
+  // console.log(
+  //   'dateToDateString',
+  //   date,
+  //   `${year}-${month}-${day}`,
+  // )
+  // console.trace()
   return `${year}-${month}-${day}`
 }
 export function dateToDateTimeString(
@@ -45,9 +51,11 @@ export function daysBetween(
   aDate.setHours(0, 0, 0, 0)
   bDate.setHours(0, 0, 0, 0)
 
-  return Math.abs(
-    (aDate.getTime() - bDate.getTime()) /
-      (1000 * 60 * 60 * 24),
+  return Math.round(
+    Math.abs(
+      (aDate.getTime() - bDate.getTime()) /
+        (1000 * 60 * 60 * 24),
+    ),
   )
 }
 

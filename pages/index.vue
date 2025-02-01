@@ -12,28 +12,25 @@ if (user.value) {
   } else {
     c.l('redirecting to day on index load')
 
-    useRouter().push(
-      `/day/${c.dateToDateString(
-        appState.focusedDay.value,
-      )}`,
-    )
+    useRouter().push(`/day/${appState.focusedDay.value}`)
   }
-} else {
+} else if (!appState.loadingUser.value) {
   c.l('redirecting to login on index load')
   useRouter().push(`/login`)
+} else {
+  c.l('skipping index redirect because still loading user')
 }
 
 watch(user, () => {
   if (user.value && !user.value.today?.energy) {
-    c.l('redirecting to mood check')
+    c.l('redirecting to mood check on user update')
     useRouter().push(`/moodCheck`)
-  } else {
-    c.l('redirecting to day')
-    useRouter().push(
-      `/day/${c.dateToDateString(
-        appState.focusedDay.value,
-      )}`,
-    )
+  } else if (user.value) {
+    c.l('redirecting to day on user update')
+    useRouter().push(`/day/${appState.focusedDay.value}`)
+  } else if (!appState.loadingUser.value) {
+    c.l('redirecting to login on no-user update')
+    useRouter().push(`/login`)
   }
 })
 </script>

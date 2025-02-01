@@ -104,10 +104,8 @@ function submit() {
   )
   appState.currentUser.value?.assignActivitiesForDay()
   // c.log('today', appState.currentUser.value?.today)
-  appState.focusedDay.value = new Date()
-  useRouter().push(
-    `/day/${c.dateToDateString(appState.focusedDay.value)}`,
-  )
+  appState.focusedDay.value = c.dateToDateString()
+  useRouter().push(`/day/${appState.focusedDay.value}`)
 }
 </script>
 

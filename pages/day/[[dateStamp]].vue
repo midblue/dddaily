@@ -338,7 +338,7 @@ import * as c from '~/common'
 import * as appState from '~/assets/app/appState'
 
 const date = new Date(useRoute().params.dateStamp as string)
-appState.focusedDay.value = date
+appState.focusedDay.value = c.dateToDateString(date)
 
 const user = appState.currentUser
 // if (!user.value?.activities.length) {

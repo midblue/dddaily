@@ -69,7 +69,10 @@ export class Activity extends Entity {
     return null
   }
 
-  didClearOnDay(day = new Date()): boolean {
+  didClearOnDay(
+    day: Date | DateString = new Date(),
+  ): boolean {
+    if (typeof day === 'string') day = new Date(day)
     if (!this.parent) return false
     const clears = (this.parent as User).clears
     if (!clears) return false
