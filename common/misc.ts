@@ -174,6 +174,15 @@ export function shuffleArray(array: any[]): any[] {
   return toReturn
 }
 
+/**
+ * Profiles the size of an object in kilobytes.
+ *
+ * @param {object} obj - The object to profile.
+ * @param {string[]} [targetPath] - Optional array of property keys to traverse before profiling.
+ * @param {number} [maxDepth=3] - The maximum depth to traverse.
+ * @param {string[]} [path=[]] - The current path of traversal (used internally for recursion).
+ * @returns {string} - A formatted string describing the object's size and key sizes.
+ */
 export function profileObject(
   obj: object,
   targetPath?: any[],

@@ -129,20 +129,32 @@ export async function loadUser(
     useRouter().push(`/day/${focusedDay.value}`)
   }
 
+  c.log({
+    focusedDay: focusedDay.value,
+    focusedDayIsToday: focusedDayIsToday.value,
+    now: new Date(),
+    dateString: c.dateToDateString(),
+    timeString: c.dateToDateTimeString(),
+    daysBetweenFocused: c.daysBetween(
+      new Date(),
+      focusedDay.value,
+    ),
+    daysBetweenNow: c.daysBetween(new Date(), new Date()),
+    userToday: JSON.parse(
+      JSON.stringify(currentUser.value?.today || {}),
+    ),
+    userDay: JSON.parse(
+      JSON.stringify(
+        currentUser.value?.getDay(focusedDay.value) || {},
+      ),
+    ),
+    userAllClears: JSON.parse(
+      JSON.stringify(currentUser.value?.clears || {}),
+    ),
+  })
+
   return currentUser.value as User
 }
-
-setInterval(() => {
-  if (
-    currentUser.value &&
-    !userIsProbablyActivelyUsingApp() &&
-    currentUser.value?.today?.energy === undefined &&
-    useRoute().path !== '/moodCheck'
-  ) {
-    c.log('Redirecting to mood check')
-    useRouter().push('/moodCheck')
-  }
-}, 5000)
 
 export async function createUser(
   id: string,
