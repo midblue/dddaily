@@ -41,17 +41,20 @@ export function addDaysToDate(
 }
 
 export function daysBetween(
-  a: Date | string,
-  b: Date | string,
+  a: Date | DateString,
+  b: Date | DateString,
 ): number {
   const aDate = new Date(a)
   const bDate = new Date(b)
+
+  if (isNaN(aDate.getTime()) || isNaN(bDate.getTime()))
+    throw new Error('Invalid date input')
 
   // Normalize to the start of the respective calendar days
   aDate.setHours(0, 0, 0, 0)
   bDate.setHours(0, 0, 0, 0)
 
-  return Math.round(
+  return Math.floor(
     Math.abs(
       (aDate.getTime() - bDate.getTime()) /
         (1000 * 60 * 60 * 24),

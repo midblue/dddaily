@@ -19,6 +19,18 @@ export const colors: [number, number, number][] = [
   [348, 97, 69],
 ]
 
+/**
+ * Updates the list of clears by iterating from the earliest clear date
+ * or yesterday if no clears exist, up to today. For each date in this range,
+ * it checks if an entry exists in the old clears and adds it to the new
+ * clears if not already present. If no entry exists for a date, it creates
+ * a new entry with an empty clears object. This process continues until
+ * today's date is reached or a maximum of 1000 iterations is performed.
+ *
+ * @param oldClears - The existing list of clears to be updated.
+ * @returns A new list of clears with entries for each day up to today.
+ */
+
 export function getUpdatedClears(
   oldClears: DatedResults,
 ): DatedResults {
@@ -38,7 +50,8 @@ export function getUpdatedClears(
       (c) => c.date === dateString,
     )
     if (oldClear) {
-      newClears.push(oldClear)
+      if (!newClears.find((c) => c.date === dateString))
+        newClears.push(oldClear)
     } else {
       // * this is causing data loss if there is a network isssue
       newClears.push({ date: dateString, clears: {} })
@@ -47,5 +60,14 @@ export function getUpdatedClears(
       date.addDaysToDate(currentDate, 1),
     )
   }
+
+  // prune trailing days with no assigned activities
+  while (
+    Object.keys(newClears[0].clears).length === 0 &&
+    newClears.length > 2
+  ) {
+    newClears.shift()
+  }
+
   return newClears
 }

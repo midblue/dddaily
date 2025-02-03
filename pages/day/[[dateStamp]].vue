@@ -338,6 +338,7 @@ import * as c from '~/common'
 import * as appState from '~/assets/app/appState'
 
 const date = new Date(useRoute().params.dateStamp as string)
+c.log('date from route', useRoute().params.dateStamp, date)
 appState.focusedDay.value = c.dateToDateString(date)
 
 const user = appState.currentUser
