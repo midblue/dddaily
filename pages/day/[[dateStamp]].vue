@@ -337,9 +337,24 @@
 import * as c from '~/common'
 import * as appState from '~/assets/app/appState'
 
-const date = new Date(useRoute().params.dateStamp as string)
+const [year, month, day] = (
+  (useRoute().params.dateStamp as string) ||
+  c.dateToDateString()
+)
+  .split('-')
+  .map(Number)
+const date = new Date(Date.UTC(year, month - 1, day)) // Month is 0-based
 c.log('date from route', useRoute().params.dateStamp, date)
 appState.focusedDay.value = c.dateToDateString(date)
+
+c.log(
+  new Date(),
+  c.dateToDateString(),
+  '2025-02-04',
+  new Date('2025-02-04'),
+  '2025-02-04T00:00:00Z',
+  new Date('2025-02-04T00:00:00Z'),
+)
 
 const user = appState.currentUser
 // if (!user.value?.activities.length) {
