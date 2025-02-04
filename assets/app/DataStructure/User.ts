@@ -736,7 +736,6 @@ export class User extends Entity {
         this.clears.find((clear) => clear.date === day) ||
         null
     if (!found) return false
-    if (!Object.keys(found.clears).length) return false
 
     // c.log(
     //   found,
