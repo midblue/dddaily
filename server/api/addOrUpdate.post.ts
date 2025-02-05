@@ -5,7 +5,7 @@ import getAuthedUser from '../getAuthedUser'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  // c.log('gray', '    /get POST request', body)
+  c.log('gray', '    /get POST request', body)
 
   if (
     !body ||
