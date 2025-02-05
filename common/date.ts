@@ -1,16 +1,17 @@
 export function dateToDateString(d?: Date): DateString {
-  const userTimezoneOffset = new Date().getTimezoneOffset()
-  const userTimezoneOffsetInMs =
-    userTimezoneOffset * 60 * 1000
-  const date = new Date(
-    new Date(d || new Date()).getTime() +
-      userTimezoneOffsetInMs,
-  )
+  if (!d) {
+    d = new Date()
+    const userTimezoneOffset =
+      new Date().getTimezoneOffset()
+    const userTimezoneOffsetInMs =
+      userTimezoneOffset * 60 * 1000
+    d = new Date(d.getTime() + userTimezoneOffsetInMs)
+  }
 
-  const year = date.getFullYear()
-  let month: any = date.getMonth() + 1
+  const year = d.getFullYear()
+  let month: any = d.getMonth() + 1
   if (month < 10) month = `0${month}`
-  let day: any = date.getDate()
+  let day: any = d.getDate()
   if (day < 10) day = `0${day}`
   // console.log(
   //   'dateToDateString',
@@ -23,22 +24,23 @@ export function dateToDateString(d?: Date): DateString {
 export function dateToDateTimeString(
   d?: Date,
 ): DateTimeString {
-  const userTimezoneOffset = new Date().getTimezoneOffset()
-  const userTimezoneOffsetInMs =
-    userTimezoneOffset * 60 * 1000
-  const date = new Date(
-    new Date(d || new Date()).getTime() +
-      userTimezoneOffsetInMs,
-  )
+  if (!d) {
+    d = new Date()
+    const userTimezoneOffset =
+      new Date().getTimezoneOffset()
+    const userTimezoneOffsetInMs =
+      userTimezoneOffset * 60 * 1000
+    d = new Date(d.getTime() + userTimezoneOffsetInMs)
+  }
 
-  const dateString = dateToDateString(date)
-  let hours: any = date.getHours()
+  const dateString = dateToDateString(d)
+  let hours: any = d.getHours()
   if (hours < 10) hours = `0${hours}`
-  let minutes: any = date.getMinutes()
+  let minutes: any = d.getMinutes()
   if (minutes < 10) minutes = `0${minutes}`
-  let seconds: any = date.getSeconds()
+  let seconds: any = d.getSeconds()
   if (seconds < 10) seconds = `0${seconds}`
-  let milliseconds: any = date.getMilliseconds()
+  let milliseconds: any = d.getMilliseconds()
   if (milliseconds < 100) milliseconds = `00${milliseconds}`
   if (milliseconds < 10) milliseconds = `0${milliseconds}`
   return `${dateString}T${hours}:${minutes}:${seconds}.${milliseconds}`

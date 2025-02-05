@@ -91,6 +91,11 @@
             </div>
           </h1>
 
+          <!-- {{ date }}
+          <br />
+          {{ c.dateToDateString(date) }}
+          <br />
+          {{ c.dateToDateString() }} -->
           <div
             v-if="
               c.dateToDateString(date) !==
