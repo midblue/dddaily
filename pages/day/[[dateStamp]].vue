@@ -337,24 +337,44 @@
 import * as c from '~/common'
 import * as appState from '~/assets/app/appState'
 
-const [year, month, day] = (
+const dateStampFromUrl =
   (useRoute().params.dateStamp as string) ||
   c.dateToDateString()
+const userTimezoneOffset = new Date().getTimezoneOffset()
+const userTimezoneOffsetInMs =
+  userTimezoneOffset * 60 * 1000
+const date = new Date(
+  new Date(dateStampFromUrl).getTime() +
+    userTimezoneOffsetInMs,
 )
-  .split('-')
-  .map(Number)
-const date = new Date(Date.UTC(year, month - 1, day)) // Month is 0-based
 c.log('date from route', useRoute().params.dateStamp, date)
 appState.focusedDay.value = c.dateToDateString(date)
 
-c.log(
-  new Date(),
-  c.dateToDateString(),
-  '2025-02-04',
-  new Date('2025-02-04'),
-  '2025-02-04T00:00:00Z',
-  new Date('2025-02-04T00:00:00Z'),
-)
+// c.log(
+//   new Date(),
+//   c.dateToDateString(),
+//   '2025-02-04',
+//   new Date('2025-02-04'),
+//   '2025-02-04T00:00:00Z',
+//   new Date('2025-02-04T00:00:00Z'),
+// )
+// makeDateInLocalTimeZone('2025-02-04')
+
+// function makeDateInLocalTimeZone(date: DateString) {
+//   const userTimezoneOffset = new Date().getTimezoneOffset()
+//   const userTimezoneOffsetInMs =
+//     userTimezoneOffset * 60 * 1000
+//   const dateInUtc = new Date(
+//     new Date(date).getTime() + userTimezoneOffsetInMs,
+//   )
+
+//   c.log({
+//     date,
+//     dateInUtc,
+//     userTimezoneOffset,
+//   })
+//   c.log('hi')
+// }
 
 const user = appState.currentUser
 // if (!user.value?.activities.length) {
