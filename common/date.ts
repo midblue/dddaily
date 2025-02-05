@@ -1,5 +1,12 @@
 export function dateToDateString(d?: Date): DateString {
-  const date = d || new Date()
+  const userTimezoneOffset = new Date().getTimezoneOffset()
+  const userTimezoneOffsetInMs =
+    userTimezoneOffset * 60 * 1000
+  const date = new Date(
+    new Date(d || new Date()).getTime() +
+      userTimezoneOffsetInMs,
+  )
+
   const year = date.getFullYear()
   let month: any = date.getMonth() + 1
   if (month < 10) month = `0${month}`
@@ -16,7 +23,14 @@ export function dateToDateString(d?: Date): DateString {
 export function dateToDateTimeString(
   d?: Date,
 ): DateTimeString {
-  const date = d || new Date()
+  const userTimezoneOffset = new Date().getTimezoneOffset()
+  const userTimezoneOffsetInMs =
+    userTimezoneOffset * 60 * 1000
+  const date = new Date(
+    new Date(d || new Date()).getTime() +
+      userTimezoneOffsetInMs,
+  )
+
   const dateString = dateToDateString(date)
   let hours: any = date.getHours()
   if (hours < 10) hours = `0${hours}`
