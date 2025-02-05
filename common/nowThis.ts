@@ -75,8 +75,12 @@ export function getUpdatedClears(
   // prune trailing days with no assigned activities
   while (
     Object.keys(newClears[0].clears).length === 0 &&
-    newClears.length > 2
+    newClears.length > 1
   ) {
+    log(
+      'Pruning day with no assigned activities',
+      newClears[0].date,
+    )
     newClears.shift()
   }
 
