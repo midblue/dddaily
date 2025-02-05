@@ -28,12 +28,12 @@ export default async function getAuthedUser(
     return
   }
 
-  c.log(
-    'gray',
-    '  Authenticating user...',
-    userId,
-    rawPassword,
-  )
+  // c.log(
+  //   'gray',
+  //   '  Authenticating user...',
+  //   userId,
+  //   rawPassword,
+  // )
 
   if (userId && rawPassword) {
     const naiveUserData =

@@ -1,4 +1,5 @@
 import * as date from './date'
+import { log } from './log'
 
 export const colors: [number, number, number][] = [
   [3, 73, 58],
@@ -34,6 +35,7 @@ export const colors: [number, number, number][] = [
 export function getUpdatedClears(
   oldClears: DatedResults,
 ): DatedResults {
+  log('Updating clears...')
   const startDateString =
     oldClears?.[0]?.date ||
     date.dateToDateString(
@@ -52,7 +54,16 @@ export function getUpdatedClears(
     if (oldClear) {
       if (!newClears.find((c) => c.date === dateString))
         newClears.push(oldClear)
+      else
+        log(
+          'Duplicate entry for date',
+          dateString,
+          newClears.find((c) => c.date === dateString),
+          oldClear,
+          ' - skipping',
+        )
     } else {
+      log('No entry for date', dateString, ' - creating')
       // * this is causing data loss if there is a network isssue
       newClears.push({ date: dateString, clears: {} })
     }

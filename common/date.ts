@@ -44,15 +44,19 @@ export function daysBetween(
   a: Date | DateString,
   b: Date | DateString,
 ): number {
-  const aDate = new Date(a)
-  const bDate = new Date(b)
+  const userTimezoneOffset = new Date().getTimezoneOffset()
+  const userTimezoneOffsetInMs =
+    userTimezoneOffset * 60 * 1000
+
+  const aDate = new Date(
+    new Date(a).getTime() + userTimezoneOffsetInMs,
+  )
+  const bDate = new Date(
+    new Date(b).getTime() + userTimezoneOffsetInMs,
+  )
 
   if (isNaN(aDate.getTime()) || isNaN(bDate.getTime()))
     throw new Error('Invalid date input')
-
-  // Normalize to the start of the respective calendar days
-  aDate.setHours(0, 0, 0, 0)
-  bDate.setHours(0, 0, 0, 0)
 
   return Math.floor(
     Math.abs(
