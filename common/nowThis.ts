@@ -1,5 +1,5 @@
 import * as date from './date'
-import { log } from './log'
+import { log, trace } from './log'
 
 export const colors: [number, number, number][] = [
   [3, 73, 58],
@@ -32,15 +32,13 @@ export const colors: [number, number, number][] = [
  * @returns A new list of clears with entries for each day up to today.
  */
 
-export function getUpdatedClears(
-  oldClears: DatedResults,
-): DatedResults {
-  log('Updating clears...')
+export function getUpdatedClears(oldClears: DatedResults): {
+  clears: DatedResults
+  didChange: boolean
+} {
   const startDateString =
     oldClears?.[0]?.date ||
-    date.dateToDateString(
-      date.addDaysToDate(new Date(), -1),
-    )
+    date.dateToDateString(date.addDaysToDate(null, -1))
   const newClears: DatedResults = []
   let currentDate = startDateString
   const today = date.dateToDateString()
@@ -84,5 +82,8 @@ export function getUpdatedClears(
     newClears.shift()
   }
 
-  return newClears
+  const didChange =
+    JSON.stringify(oldClears) !== JSON.stringify(newClears)
+
+  return { clears: newClears, didChange }
 }

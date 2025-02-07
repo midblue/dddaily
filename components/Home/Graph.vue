@@ -65,8 +65,8 @@
         >
           <circle
             :cx="
-              ((new Date(date).getTime() -
-                startDate.getTime()) /
+              ((moment(date).valueOf() -
+                startDate.valueOf()) /
                 span) *
               graphWidth
             "
@@ -89,8 +89,8 @@
             class="dayLink"
             @click="toDate(date)"
             :x="
-              ((new Date(date).getTime() -
-                startDate.getTime()) /
+              ((moment(date).valueOf() -
+                startDate.valueOf()) /
                 span) *
                 graphWidth -
               graphWidth / toGraph.length / 2
@@ -104,8 +104,8 @@
             class="moodNumber"
             v-if="didHaveMood"
             :x="
-              ((new Date(date).getTime() -
-                startDate.getTime()) /
+              ((moment(date).valueOf() -
+                startDate.valueOf()) /
                 span) *
               graphWidth
             "
@@ -131,15 +131,11 @@
       >
         <div class="dateAxisItem smallcaps fade markLeft">
           {{
-            startDate.toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year:
-                endDate.getFullYear() ===
-                startDate.getFullYear()
-                  ? undefined
-                  : 'numeric',
-            })
+            moment(startDate).format(
+              endDate.year() === startDate.year()
+                ? 'MMM D'
+                : 'MMM D, YYYY',
+            )
           }}
         </div>
         <div class="freebies flex gaptiny">
@@ -157,6 +153,8 @@
 
 <script setup lang="ts">
 import * as c from '~/common'
+import moment from 'moment'
+import type { Moment } from 'moment'
 
 const {
   toGraph,
@@ -217,13 +215,13 @@ const leftRightBuffer = computed(() => {
 })
 
 const startDate = computed(() => {
-  return new Date(toGraph[0][0])
+  return moment(toGraph[0][0])
 })
 const endDate = computed(() => {
-  return new Date(toGraph[toGraph.length - 1][0])
+  return moment(toGraph[toGraph.length - 1][0])
 })
 const span = computed(() => {
-  return endDate.value.getTime() - startDate.value.getTime()
+  return endDate.value.valueOf() - startDate.value.valueOf()
 })
 const maxValue = computed(() => {
   if (max) return max
@@ -280,9 +278,9 @@ const d = computed(() => {
   ) {
     const [date, mood] = pointsWithRelevantXp.value[i]
 
-    const dateObject = new Date(date)
+    const dateObject = moment(date)
     const x =
-      ((dateObject.getTime() - startDate.value.getTime()) /
+      ((dateObject.valueOf() - startDate.value.valueOf()) /
         span.value) *
       graphWidth.value
     const y = (mood / maxValue.value) * graphHeight

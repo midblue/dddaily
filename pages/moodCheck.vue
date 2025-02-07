@@ -79,12 +79,11 @@ import * as appState from '~/assets/app/appState'
 const user = appState.currentUser
 
 watch(user, () => {
-  useRouter().push(`/`)
+  // * routing logic handled in index
+  useRouter().replace(`/`)
 })
 
-const inputMood = ref(
-  appState.currentUser.value?.yesterday?.mood || 5,
-)
+const inputMood = ref(5)
 function setMood(mood: number) {
   inputMood.value = mood
 }
@@ -97,25 +96,23 @@ function setEnergy(energy: number) {
 function submit() {
   appState.currentUser.value?.setMood(
     inputMood.value / 10,
-    c.addDaysToDate(new Date(), -1),
+    c.addDaysToDate(null, -1), // yesterday
   )
   appState.currentUser.value?.setEnergy(
     inputEnergy.value / 10,
   )
   appState.currentUser.value?.assignActivitiesForDay()
   appState.focusedDay.value = c.dateToDateString()
-  c.log(
-    'today',
-    JSON.parse(
+  c.log('moodCheck result:', {
+    mood: appState.currentUser.value?.yesterday?.mood,
+    energy: appState.currentUser.value?.today?.energy,
+    focusedDay: appState.focusedDay.value,
+    today: JSON.parse(
       JSON.stringify(
         appState.currentUser.value?.today || {},
       ),
     ),
-    'focused value',
-    JSON.parse(
-      JSON.stringify(appState.focusedDay.value || {}),
-    ),
-  )
+  })
   useRouter().push(`/day/${appState.focusedDay.value}`)
 }
 </script>

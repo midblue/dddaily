@@ -45,14 +45,7 @@
               "
               class="small textcenter"
             >
-              {{
-                date.toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
-                })
-              }}
+              {{ moment(date).format('dddd, MMM D, YYYY') }}
             </div>
             <div
               v-else-if="
@@ -105,9 +98,9 @@
           >
             <div class="nowrap">
               ⚠️ This is
-              {{ c.daysBetween(date, new Date()) }}
+              {{ c.daysBetween(date, moment()) }}
               day{{
-                c.daysBetween(date, new Date()) === 1
+                c.daysBetween(date, moment()) === 1
                   ? ''
                   : 's'
               }}
@@ -239,7 +232,7 @@
               class="small"
               @click="
                 user.assignActivitiesForDay(
-                  new Date(),
+                  moment(),
                   true,
                 )
               "
@@ -341,36 +334,40 @@
 <script setup lang="ts">
 import * as c from '~/common'
 import * as appState from '~/assets/app/appState'
+import moment from 'moment'
+import type { Moment } from 'moment'
 
 const dateStampFromUrl =
   (useRoute().params.dateStamp as string) ||
   c.dateToDateString()
-const userTimezoneOffset = new Date().getTimezoneOffset()
-const userTimezoneOffsetInMs =
-  userTimezoneOffset * 60 * 1000
-const date = new Date(
-  new Date(dateStampFromUrl).getTime() +
-    userTimezoneOffsetInMs,
-)
-c.log('date from route', useRoute().params.dateStamp, date)
-appState.focusedDay.value = c.dateToDateString(date)
+// const userTimezoneOffset = 0 //moment().getTimezoneOffset()
+// const userTimezoneOffsetInMs =
+//   userTimezoneOffset * 60 * 1000
+// const date = moment(
+//   moment(dateStampFromUrl).valueOf() +
+//     userTimezoneOffsetInMs,
+// )
+// c.log('date from route', useRoute().params.dateStamp)
+const date = moment(dateStampFromUrl as DateString)
+
+// appState.focusedDay.value = c.dateToDateString(date)
 
 // c.log(
-//   new Date(),
+//   moment(),
 //   c.dateToDateString(),
 //   '2025-02-04',
-//   new Date('2025-02-04'),
+//   moment('2025-02-04'),
 //   '2025-02-04T00:00:00Z',
-//   new Date('2025-02-04T00:00:00Z'),
+//   moment('2025-02-04T00:00:00Z'),
 // )
 // makeDateInLocalTimeZone('2025-02-04')
 
 // function makeDateInLocalTimeZone(date: DateString) {
-//   const userTimezoneOffset = new Date().getTimezoneOffset()
+//   const userTimezoneOffset = moment().getTimezoneOffset()
 //   const userTimezoneOffsetInMs =
 //     userTimezoneOffset * 60 * 1000
-//   const dateInUtc = new Date(
-//     new Date(date).getTime() + userTimezoneOffsetInMs,
+//   const dateInUtc = moment(
+//     moment(date).getTime() + userTimezoneOffsetInMs,
 //   )
 
 //   c.log({
@@ -400,7 +397,7 @@ if (appState.focusedDayIsToday.value) {
       user.value.addActivityOnDay()
 
     if ((user.value.today.acceptableEffort || 0) === 0)
-      user.value.assignActivitiesForDay(new Date(), true)
+      user.value.assignActivitiesForDay(moment(), true)
   }
 }
 

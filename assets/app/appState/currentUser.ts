@@ -1,3 +1,6 @@
+import moment from 'moment'
+import type { Moment } from 'moment'
+
 import * as c from '~/common'
 import { User } from '../DataStructure/User'
 import { loadFullUserData } from '../storage/storage'
@@ -25,7 +28,7 @@ export const focusedDay: Ref<DateString> = ref(
   c.dateToDateString(),
 )
 export const focusedDayIsToday = computed(() => {
-  return c.daysBetween(new Date(), focusedDay.value) === 0
+  return c.daysBetween(null, focusedDay.value) === 0
 })
 
 export let lastUserInteractionTimestampMs: Ref<number> =
@@ -109,9 +112,7 @@ export async function loadUser(
       useRoute().path === '/moodCheck'
     ) {
       c.log('Redirecting to today')
-      useRouter().push(
-        `/day/${c.dateToDateString(new Date())}`,
-      )
+      useRouter().push(`/day/${c.dateToDateString()}`)
     }
   })
 
@@ -129,17 +130,17 @@ export async function loadUser(
     useRouter().push(`/day/${focusedDay.value}`)
   }
 
-  c.log({
+  c.log('exhaustive date logs:', {
     focusedDay: focusedDay.value,
     focusedDayIsToday: focusedDayIsToday.value,
-    now: new Date(),
+    now: moment(),
     dateString: c.dateToDateString(),
     timeString: c.dateToDateTimeString(),
     daysBetweenFocused: c.daysBetween(
-      new Date(),
+      null,
       focusedDay.value,
     ),
-    daysBetweenNow: c.daysBetween(new Date(), new Date()),
+    daysBetweenNow: c.daysBetween(null, null),
     userToday: JSON.parse(
       JSON.stringify(currentUser.value?.today || {}),
     ),

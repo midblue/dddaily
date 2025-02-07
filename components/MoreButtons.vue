@@ -53,7 +53,7 @@ import * as appState from '~/assets/app/appState'
 
 const user = appState.currentUser
 const date = appState.focusedDay.value
-const day = user.value?.getResultsForDay(date)
+const day = user.value?.getDay(date)
 
 const open = ref(false)
 

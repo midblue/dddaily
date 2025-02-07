@@ -5,21 +5,25 @@ import * as c from '~/common'
 import * as appState from '~/assets/app/appState'
 
 const user = appState.currentUser
-if (user.value) {
-  if (!user.value.today?.energy) {
-    c.l('redirecting to mood check on index load')
-    useRouter().push(`/moodCheck`)
-  } else {
-    c.l('redirecting to day on index load')
+onBeforeMount(() => {
+  if (user.value) {
+    if (!user.value.today?.energy) {
+      c.l('redirecting to mood check on index load')
+      useRouter().push(`/moodCheck`)
+    } else {
+      c.l('redirecting to day on index load')
 
-    useRouter().push(`/day/${appState.focusedDay.value}`)
+      useRouter().push(`/day/${appState.focusedDay.value}`)
+    }
+  } else if (!appState.loadingUser.value) {
+    c.l('redirecting to login on index load')
+    useRouter().push(`/login`)
+  } else {
+    c.l(
+      'skipping index redirect because still loading user',
+    )
   }
-} else if (!appState.loadingUser.value) {
-  c.l('redirecting to login on index load')
-  useRouter().push(`/login`)
-} else {
-  c.l('skipping index redirect because still loading user')
-}
+})
 
 watch(user, () => {
   if (user.value && !user.value.today?.energy) {

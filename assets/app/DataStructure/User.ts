@@ -1,3 +1,6 @@
+import moment from 'moment'
+import type { Moment } from 'moment'
+
 import * as c from '~/common'
 import { Activity } from './Activity'
 import { Entity } from './Entity'
@@ -98,14 +101,13 @@ export class User extends Entity {
 
   bringClearsUpToDate(): void {
     if (!this.activities.length) return
-    let prevClears = this.clears
-    this.clears = c.getUpdatedClears(this.clears)
-
-    if (
-      JSON.stringify(prevClears) !==
-      JSON.stringify(this.clears)
+    const { clears, didChange } = c.getUpdatedClears(
+      this.clears,
     )
+    if (didChange) {
+      this.clears = clears
       this.save(['clears'])
+    }
   }
 
   checkUseFreebie() {
@@ -129,7 +131,7 @@ export class User extends Entity {
 
   forgiveNonessentialActivitiesFromYesterday() {
     if (this.yesterday) {
-      const yesterdayDate = new Date(this.yesterday.date)
+      const yesterdayDate = moment(this.yesterday.date)
 
       for (let a of Object.keys(this.yesterday.clears)) {
         const activity = this.getActivityById(a)
@@ -137,7 +139,7 @@ export class User extends Entity {
         if (this.yesterday.clears[a] > 0) continue
         if (activity.exact || !activity.lastDone) continue
         // for instances where the gap is less than streakLeewayEitherDirection, remove 0s (fails)
-        const lastDone = new Date(activity.lastDone)
+        const lastDone = moment(activity.lastDone)
         const daysSinceLastDone = c.daysBetween(
           lastDone,
           yesterdayDate,
@@ -156,18 +158,18 @@ export class User extends Entity {
     this.save(['clears'])
   }
 
-  setMood(mood: number, day = new Date()) {
+  setMood(mood: number, day = moment()) {
     const date = c.dateToDateString(day)
-    const results = this.getResultsForDay(date)
+    const results = this.getDay(date, { upsert: true })
     if (!results) return
     if (results.mood === mood) return
     results.mood = mood
     this.save(['clears'])
   }
 
-  setEnergy(energy: number, day = new Date()) {
+  setEnergy(energy: number, day = moment()) {
     const date = c.dateToDateString(day)
-    const results = this.getResultsForDay(date)
+    const results = this.getDay(date, { upsert: true })
     if (!results) return
     if (results.energy === energy) return
     results.energy = energy
@@ -176,7 +178,8 @@ export class User extends Entity {
 
   getStreak(): number {
     let streak = 0
-    for (let i = this.clears.length - 1; i >= 0; i--) {
+    const clearsLength = this.clears.length
+    for (let i = clearsLength - 1; i >= 0; i--) {
       const clear = this.clears[i]
       if (this.didClearOnDay(clear.date)) streak++
       else break
@@ -184,7 +187,7 @@ export class User extends Entity {
     return streak
   }
 
-  getEffortBudget(day = new Date()): number {
+  getEffortBudget(day = moment()): number {
     // * minimum is sum effort cost of exact and due now activities
     // * "if you do nothing else today, at least do these."
     const minimumEffortBudget = this.activities.reduce(
@@ -288,7 +291,7 @@ export class User extends Entity {
           energyToday *
           previousDayAverageEffortAsPercentOfAcceptable,
     )
-    c.log({
+    c.log('getEffortBudget result', {
       minimumEffortBudget,
       previousDayAverageEffortUsage,
       previousDayAverageEffortAsPercentOfAcceptable,
@@ -300,9 +303,9 @@ export class User extends Entity {
   }
 
   /** just loads them, not generate */
-  getActivitiesForDay(day = new Date()): Activity[] {
+  getActivitiesForDay(day = moment()): Activity[] {
     const date = c.dateToDateString(day)
-    const results = this.getResultsForDay(date)
+    const results = this.getDay(date, { upsert: true })
     if (!results) return []
     const activities: Activity[] = []
     for (let id in results.clears) {
@@ -312,9 +315,9 @@ export class User extends Entity {
     return activities
   }
   /** just loads them, not generate */
-  getBackupActivitiesForDay(day = new Date()): Activity[] {
+  getBackupActivitiesForDay(day = moment()): Activity[] {
     const date = c.dateToDateString(day)
-    const results = this.getResultsForDay(date)
+    const results = this.getDay(date, { upsert: true })
     if (!results) return []
     const activities: Activity[] = []
     for (let id of results.backupActivityIds || []) {
@@ -325,11 +328,11 @@ export class User extends Entity {
   }
 
   assignActivitiesForDay(
-    day = new Date(),
+    day = moment(),
     forceOverwrite = false,
   ): Activity[] {
     const date = c.dateToDateString(day)
-    const results = this.getResultsForDay(date)
+    const results = this.getDay(date, { upsert: true })
     if (!results) return []
     // * skip if already assigned
     if (
@@ -352,10 +355,10 @@ export class User extends Entity {
       results.energy,
       activities,
     )
-    c.log({
+    c.log('assignActivtiesForDay calc:', {
       acceptableEffort,
       maxEffort,
-      r: acceptableEffort / maxEffort,
+      r: acceptableEffort / (maxEffort || 1),
     })
     results.acceptableEffort = acceptableEffort
     results.effortExpended = 0
@@ -365,18 +368,17 @@ export class User extends Entity {
     return activities
   }
 
-  private generateActivitiesForDay(day = new Date()): {
+  private generateActivitiesForDay(day = moment()): {
     activities: Activity[]
     backups: Activity[]
   } {
     const effortBudget = this.getEffortBudget(day)
     const moodYesterday =
-      this.getResultsForDay(
-        c.dateToDateString(c.addDaysToDate(day, -1)),
-      )?.mood || 5
+      this.getDay(c.addDaysToDate(day, -1), {
+        upsert: true,
+      })?.mood || 5
     const energyToday =
-      this.getResultsForDay(c.dateToDateString(day))
-        ?.energy || 5
+      this.getDay(day, { upsert: true })?.energy || 5
     const activitiesToDo: Activity[] = []
 
     const activitiesByScore = this.activities.map((a) => {
@@ -411,13 +413,13 @@ export class User extends Entity {
       // random
       // score += Math.random() * 0.3
 
-      c.log({
-        name: a.name,
-        score,
-        dueness,
-        moodFit,
-        energyFit,
-      })
+      // c.log('activitiesByScore calc', {
+      //   name: a.name,
+      //   score,
+      //   dueness,
+      //   moodFit,
+      //   energyFit,
+      // })
 
       return {
         score,
@@ -426,7 +428,10 @@ export class User extends Entity {
     })
     activitiesByScore.sort((a, b) => b.score - a.score)
 
-    c.log({ activitiesByScore, effortBudget })
+    c.log('activitiesByScore calc', {
+      activitiesByScore,
+      effortBudget,
+    })
 
     let currentEnergyUsage = 0
     let index = 0
@@ -472,6 +477,20 @@ export class User extends Entity {
       )
     }
 
+    if (activitiesToDo.length === 0) {
+      c.log(
+        'no activities to do, adding first one',
+        backupActivities,
+      )
+      if (activitiesByScore[0].activity) {
+        activitiesToDo.push(activitiesByScore[0].activity)
+      }
+      if (backupActivities.includes(activitiesToDo[0]))
+        backupActivities = backupActivities.filter(
+          (a) => a !== activitiesToDo[0],
+        )
+    }
+
     const sortedByOrder: Activity[] = []
     for (let id of this.activityIdOrder)
       if (activitiesToDo.find((a) => a.id === id))
@@ -486,13 +505,11 @@ export class User extends Entity {
   }
 
   swapActivityOnDay(
-    day: Date | DateString = new Date(),
+    day: Moment | DateString = moment(),
     activityId: string,
   ) {
-    if (typeof day === 'string') day = new Date(day)
-    const results = this.getResultsForDay(
-      c.dateToDateString(day),
-    )
+    if (typeof day === 'string') day = moment(day)
+    const results = this.getDay(day, { upsert: true })
     if (!results) return
     const activity = this.getActivityById(activityId)
     if (!activity) return
@@ -526,14 +543,12 @@ export class User extends Entity {
   }
 
   addActivityOnDay(
-    day: Date | DateString = new Date(),
+    day: Moment | DateString = moment(),
     specificActivity?: Activity,
   ): boolean {
     c.log('addActivityOnDay')
-    if (typeof day === 'string') day = new Date(day)
-    const results = this.getResultsForDay(
-      c.dateToDateString(day),
-    )
+    if (typeof day === 'string') day = moment(day)
+    const results = this.getDay(day, { upsert: true })
     if (!results) return false
     let chosenActivity: Activity | null =
       specificActivity || null
@@ -547,11 +562,11 @@ export class User extends Entity {
         const remaining = this.activities.filter(
           (a) => !existing.includes(a),
         )
-        c.log(
-          this.activities.length,
-          remaining.length,
-          this.activities.length,
-        )
+        // c.log(
+        //   this.activities.length,
+        //   remaining.length,
+        //   this.activities.length,
+        // )
         if (!remaining.length) return false
         chosenActivity = c.randomFromArray(remaining)
       }
@@ -574,9 +589,44 @@ export class User extends Entity {
     return true
   }
 
-  getDay(day: DateString | Date): DatedResults[0] | null {
-    if (day instanceof Date) day = c.dateToDateString(day)
-    return this.clears.find((c) => c.date === day) || null
+  getDay(
+    day: DateString | Moment | DatedResults[0] | null,
+    { upsert }: { upsert: boolean } = { upsert: false },
+  ): DatedResults[0] | null {
+    if (!day) return null
+    if ((day as DatedResults[0]).clears)
+      return day as DatedResults[0]
+
+    let dateString: DateString
+    if (day instanceof Date)
+      dateString = c.dateToDateString(day)
+    else if ((day as Moment).daysInMonth)
+      dateString = c.dateToDateString(day as Moment)
+    else dateString = c.dateToDateString(day as any)
+    const found =
+      this.clears.find((c) => c.date === dateString) || null
+    if (found) return found
+    if (!upsert) return null
+
+    c.log(
+      'creating new day results for day',
+      day,
+      dateString,
+    )
+    c.trace()
+
+    const newDayData: DatedResults[0] = {
+      date: dateString,
+      clears: {},
+    }
+    // insert in proper order
+    const newClears = [...this.clears]
+    newClears.push(newDayData)
+    newClears.sort((a, b) => a.date.localeCompare(b.date))
+    this.clears = newClears
+    this.save(['clears'])
+
+    return newDayData
   }
   get today(): DatedResults[0] | null {
     const currentDate = c.dateToDateString()
@@ -587,31 +637,11 @@ export class User extends Entity {
   }
   get yesterday(): DatedResults[0] | null {
     const yesterday = c.dateToDateString(
-      c.addDaysToDate(new Date(), -1),
+      c.addDaysToDate(moment(), -1),
     )
     return (
       this.clears.find((c) => c.date === yesterday) || null
     )
-  }
-
-  getResultsForDay(
-    day: DateString | Date,
-  ): DatedResults[0] | null {
-    if (day instanceof Date) day = c.dateToDateString(day)
-    const existing = this.clears.find((c) => c.date === day)
-    if (existing) return existing
-    c.log('creating new day results')
-    const newClears: DatedResults[0] = {
-      date: day,
-      clears: {},
-    }
-    // insert in proper order
-    const clears = [...this.clears]
-    clears.push(newClears)
-    clears.sort((a, b) => a.date.localeCompare(b.date))
-    this.clears = clears
-    this.save(['clears'])
-    return newClears
   }
 
   addActivityFromConstructorData(
@@ -671,7 +701,7 @@ export class User extends Entity {
   }
 
   getNextEntry(
-    date: DateString | Date,
+    date: DateString | Moment,
   ): DatedResults[0] | null {
     if (date instanceof Date)
       date = c.dateToDateString(date)
@@ -684,11 +714,9 @@ export class User extends Entity {
   }
 
   getPreviousEntry(
-    date: DateString | Date,
+    date: DateString | Moment,
   ): DatedResults[0] | null {
-    if (date instanceof Date)
-      date = c.dateToDateString(date)
-    const found = this.clears.find((c) => c.date === date)
+    const found = this.getDay(date)
     if (found) {
       const index = this.clears.indexOf(found)
       // c.log(index, JSON.stringify(this.clears[index - 1]))
@@ -722,19 +750,12 @@ export class User extends Entity {
   didClearOnDay(
     day:
       | DateString
-      | Date
+      | Moment
       | DatedResults[0]
       | undefined
       | null = c.dateToDateString(),
   ): boolean {
-    if (!day) return false
-    if (day instanceof Date) day = c.dateToDateString(day)
-    let found: DatedResults[0] | null = null
-    if (day instanceof Object && day.date) found = day
-    else
-      found =
-        this.clears.find((clear) => clear.date === day) ||
-        null
+    const found = this.getDay(day)
     if (!found) return false
 
     // c.log(
@@ -766,20 +787,14 @@ export class User extends Entity {
   didMaxClearOnDay(
     day:
       | DateString
-      | Date
+      | Moment
       | DatedResults[0]
       | undefined
       | null = c.dateToDateString(),
   ): boolean {
-    if (!day) return false
-    if (day instanceof Date) day = c.dateToDateString(day)
-    let found: DatedResults[0] | null = null
-    if (day instanceof Object && day.date) found = day
-    else
-      found =
-        this.clears.find((clear) => clear.date === day) ||
-        null
+    const found = this.getDay(day)
     if (!found) return false
+
     if (!Object.keys(found.clears).length) return false
     return (
       !!found.maxEffort &&
@@ -794,15 +809,15 @@ export class User extends Entity {
   ) {
     const userWasCleared = this.didClearOnDay(day)
 
-    const results = this.getResultsForDay(day)
+    const results = this.getDay(day, { upsert: true })
     if (!results) return
     const activitiesForDay = this.getActivitiesForDay(
-      new Date(day),
+      moment(day),
     )
     results.clears[activity.id] = setTo
     results.effortExpended = c.r2(
       activitiesForDay
-        .filter((a) => a.didClearOnDay(new Date(day)))
+        .filter((a) => a.didClearOnDay(moment(day)))
         .reduce((a, b) => a + b.effortRequired, 0),
     )
 
@@ -892,7 +907,7 @@ function getAcceptableEffort(
       totalEffort,
     ),
   )
-  c.log({
+  c.log('getAcceptableEffort result:', {
     totalEffort,
     dueActivitiesEffort,
     optionalEffort,

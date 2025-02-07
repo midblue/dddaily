@@ -1,3 +1,6 @@
+import moment from 'moment'
+import type { Moment } from 'moment'
+
 import * as c from '~/common'
 import {
   saveElement,
@@ -70,10 +73,13 @@ export abstract class Entity {
       { keys },
       this.constructor.name,
       this.id,
-      keys && this[keys[0]],
+      keys &&
+        JSON.stringify({
+          d: this[keys[0]],
+        }),
     )
 
-    let updatedDate = new Date()
+    let updatedDate = moment()
     this.updated = c.dateToDateTimeString(updatedDate)
     this.keysToSave = new Set([
       ...(this.keysToSave || []),

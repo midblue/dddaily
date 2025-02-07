@@ -1,84 +1,106 @@
-export function dateToDateString(d?: Date): DateString {
-  if (!d) {
-    d = new Date()
-    const userTimezoneOffset =
-      new Date().getTimezoneOffset()
-    const userTimezoneOffsetInMs =
-      userTimezoneOffset * 60 * 1000
-    d = new Date(d.getTime() + userTimezoneOffsetInMs)
-  }
+import moment from 'moment'
+import type { Moment } from 'moment'
 
-  const year = d.getFullYear()
-  let month: any = d.getMonth() + 1
-  if (month < 10) month = `0${month}`
-  let day: any = d.getDate()
-  if (day < 10) day = `0${day}`
-  // console.log(
-  //   'dateToDateString',
-  //   date,
-  //   `${year}-${month}-${day}`,
-  // )
-  // console.trace()
-  return `${year}-${month}-${day}`
+export function dateToDateString(
+  d?: Moment | DateString | Date | null,
+): DateString {
+  // if (!d) {
+  //   d = moment()
+  //   // const userTimezoneOffset = moment().t()
+  //   // const userTimezoneOffsetInMs =
+  //   //   userTimezoneOffset * 60 * 1000
+  //   // d = moment(d.getTime() + userTimezoneOffsetInMs)
+  // }
+
+  // const year = d.getFullYear()
+  // let month: any = d.getMonth() + 1
+  // if (month < 10) month = `0${month}`
+  // let day: any = d.getDate()
+  // if (day < 10) day = `0${day}`
+  // // console.log(
+  // //   'dateToDateString',
+  // //   date,
+  // //   `${year}-${month}-${day}`,
+  // // )
+  // // console.trace()
+
+  return moment(d || moment()).format(
+    'YYYY-MM-DD',
+  ) as DateString //`${year}-${month}-${day}`
 }
 export function dateToDateTimeString(
-  d?: Date,
+  d?: Moment | DateString | DateTimeString,
 ): DateTimeString {
-  if (!d) {
-    d = new Date()
-    const userTimezoneOffset =
-      new Date().getTimezoneOffset()
-    const userTimezoneOffsetInMs =
-      userTimezoneOffset * 60 * 1000
-    d = new Date(d.getTime() + userTimezoneOffsetInMs)
-  }
+  // if (!d) {
+  //   d = moment()
+  //   // const userTimezoneOffset = moment().getTimezoneOffset()
+  //   // const userTimezoneOffsetInMs =
+  //   //   userTimezoneOffset * 60 * 1000
+  //   // d = moment(d.getTime() + userTimezoneOffsetInMs)
+  // }
 
-  const dateString = dateToDateString(d)
-  let hours: any = d.getHours()
-  if (hours < 10) hours = `0${hours}`
-  let minutes: any = d.getMinutes()
-  if (minutes < 10) minutes = `0${minutes}`
-  let seconds: any = d.getSeconds()
-  if (seconds < 10) seconds = `0${seconds}`
-  let milliseconds: any = d.getMilliseconds()
-  if (milliseconds < 100) milliseconds = `00${milliseconds}`
-  if (milliseconds < 10) milliseconds = `0${milliseconds}`
-  return `${dateString}T${hours}:${minutes}:${seconds}.${milliseconds}`
+  // const dateString = dateToDateString(d)
+  // let hours: any = d.getHours()
+  // if (hours < 10) hours = `0${hours}`
+  // let minutes: any = d.getMinutes()
+  // if (minutes < 10) minutes = `0${minutes}`
+  // let seconds: any = d.getSeconds()
+  // if (seconds < 10) seconds = `0${seconds}`
+  // let milliseconds: any = d.getMilliseconds()
+  // if (milliseconds < 100) milliseconds = `00${milliseconds}`
+  // if (milliseconds < 10) milliseconds = `0${milliseconds}`
+  // return `${dateString}T${hours}:${minutes}:${seconds}.${milliseconds}`
+  return moment(d || moment()).format(
+    'YYYY-MM-DDTHH:mm:ss.SSS',
+  ) as DateTimeString
 }
 
 export function addDaysToDate(
-  date: Date | DateString | DateTimeString,
+  date:
+    | Moment
+    | DateString
+    | DateTimeString
+    | null
+    | undefined,
   days: number,
-): Date {
-  const dateAsMs = new Date(date).getTime()
-  const newDateAsMs = dateAsMs + days * 24 * 60 * 60 * 1000
-  const newDate = new Date(newDateAsMs)
-  return newDate
+): Moment {
+  // const dateAsMs = moment(date).
+  // const newDateAsMs = dateAsMs + days * 24 * 60 * 60 * 1000
+  // const newDate = moment(newDateAsMs)
+  // return newDate
+  return moment(date || moment()).add(days, 'days')
 }
 
+/**
+ * @returns absolute value, integer
+ */
 export function daysBetween(
-  a: Date | DateString,
-  b: Date | DateString,
+  a?: Moment | DateString | null | undefined,
+  b?: Moment | DateString | null | undefined,
 ): number {
-  const userTimezoneOffset = new Date().getTimezoneOffset()
-  const userTimezoneOffsetInMs =
-    userTimezoneOffset * 60 * 1000
+  // const userTimezoneOffset = moment().getTimezoneOffset()
+  // const userTimezoneOffsetInMs =
+  //   userTimezoneOffset * 60 * 1000
 
-  const aDate = new Date(
-    new Date(a).getTime() + userTimezoneOffsetInMs,
-  )
-  const bDate = new Date(
-    new Date(b).getTime() + userTimezoneOffsetInMs,
-  )
+  // const aDate = moment(
+  //   moment(a).getTime() + userTimezoneOffsetInMs,
+  // )
+  // const bDate = moment(
+  //   moment(b).getTime() + userTimezoneOffsetInMs,
+  // )
 
-  if (isNaN(aDate.getTime()) || isNaN(bDate.getTime()))
-    throw new Error('Invalid date input')
+  // if (isNaN(aDate.getTime()) || isNaN(bDate.getTime()))
+  //   throw new Error('Invalid date input')
 
-  return Math.floor(
-    Math.abs(
-      (aDate.getTime() - bDate.getTime()) /
-        (1000 * 60 * 60 * 24),
-    ),
+  // return Math.floor(
+  //   Math.abs(
+  //     (aDate.getTime() - bDate.getTime()) /
+  //       (1000 * 60 * 60 * 24),
+  //   ),
+  // )
+
+  return Math.abs(
+    moment(a || moment()).diff(b || moment(), 'days'),
   )
 }
 

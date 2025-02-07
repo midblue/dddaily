@@ -101,10 +101,10 @@ async function passiveReset() {
   }
 
   if (
-    !appState.currentUser.value?.today?.energy &&
-    useRoute().path !== '/moodCheck'
+    !appState.currentUser.value ||
+    !appState.currentUser.value?.today?.energy
   ) {
-    c.log('no energy, redirecting to index')
+    c.log('no energy (or no user), redirecting to index')
     return useRouter().replace(`/`)
   }
 }

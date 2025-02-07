@@ -2,6 +2,9 @@ import * as c from '~/common'
 import type { User } from './User'
 import { Entity } from './Entity'
 
+import moment from 'moment'
+import type { Moment } from 'moment'
+
 export class Activity extends Entity {
   name: string
   type: EntityType = 'Activity'
@@ -70,9 +73,9 @@ export class Activity extends Entity {
   }
 
   didClearOnDay(
-    day: Date | DateString = new Date(),
+    day: Moment | DateString = moment(),
   ): boolean {
-    if (typeof day === 'string') day = new Date(day)
+    if (typeof day === 'string') day = moment(day)
     if (!this.parent) return false
     const clears = (this.parent as User).clears
     if (!clears) return false
@@ -112,7 +115,7 @@ export class Activity extends Entity {
    * 999: exact and is due now
    */
   get dueness(): number {
-    const lastDone = this.lastDone || new Date(0)
+    const lastDone = this.lastDone || moment(0)
     const today = c.dateToDateString()
     const daysSinceLastDone = c.daysBetween(lastDone, today)
     if (this.exact && daysSinceLastDone < this.dayInterval)
@@ -171,7 +174,7 @@ export class Activity extends Entity {
     if (!allClears) return []
 
     let history: (-1 | 0 | 1 | 5)[] = []
-    let lastDoneDate = new Date(0)
+    let lastDoneDate = moment(0)
     const streakLeewayEitherDirection =
       this.streakLeewayEitherDirection
     for (let i = 0; i < allClears.length; i++) {
@@ -180,7 +183,7 @@ export class Activity extends Entity {
       else {
         if (clearData > 0) {
           history.push(5)
-          lastDoneDate = new Date(allClears[i].date)
+          lastDoneDate = moment(allClears[i].date)
         } else if (clearData === 0) {
           const daysBetween = c.daysBetween(
             allClears[i].date,
