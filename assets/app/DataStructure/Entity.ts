@@ -8,6 +8,11 @@ import {
 } from '../storage/storage'
 import { loadElementFromRemote } from '../storage/remote'
 
+type EntityLifecycleHookType =
+  | 'onSaveFail'
+  | 'afterPassiveUpdate'
+  | 'afterDailyUpdate'
+
 export abstract class Entity {
   id: string
   abstract type: EntityType
@@ -18,6 +23,13 @@ export abstract class Entity {
   private awaitingSave: boolean = false
   private keysToSave: Set<string> | null = null
   private localVersion: number = 1
+
+  hooks: {
+    [key in EntityLifecycleHookType]?: ((
+      self: Entity,
+      bubbledFrom?: Entity,
+    ) => void)[]
+  } = {}
 
   constructor(
     data: EntityConstructorData,
@@ -128,6 +140,7 @@ export abstract class Entity {
       `Save result for ${this.constructor.name} ${this.id}:`,
       saveRes,
     )
+    if (saveRes.length === 0) this.callHook('onSaveFail')
   }
 
   async remove() {
@@ -149,5 +162,35 @@ export abstract class Entity {
       if (!this.hasOwnProperty(key)) continue
       this[key] = res[key]
     }
+  }
+
+  addHook(
+    type: EntityLifecycleHookType,
+    callback: (self: Entity) => void,
+  ) {
+    if (!this.hooks[type]) this.hooks[type] = []
+    this.hooks[type]?.push(callback)
+  }
+  removeHook(
+    type: EntityLifecycleHookType,
+    callback: (self: Entity) => void,
+  ) {
+    this.hooks[type] = this.hooks[type]?.filter(
+      (c) => c !== callback,
+    )
+  }
+  callHook(
+    type: EntityLifecycleHookType,
+    bubbledFrom?: Entity,
+  ) {
+    if (this.parent)
+      (this.parent as Entity).callHook(
+        type,
+        bubbledFrom || this,
+      )
+
+    if (!this.hooks[type]) return
+    for (let callback of this.hooks[type]!)
+      callback(this, bubbledFrom)
   }
 }

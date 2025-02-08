@@ -87,7 +87,7 @@ button {
   width: 100%;
   background: var(--bgD);
   overflow-y: auto;
-  max-height: 5.5em;
+  max-height: calc(max(5.5em, 16vh));
 
   .button,
   button {

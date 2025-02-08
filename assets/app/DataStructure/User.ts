@@ -17,8 +17,6 @@ export class User extends Entity {
   // freebiesAvailable: number = 0
 
   private currentDay: DateString = c.dateString()
-  private dailyHooks: (() => void)[] = []
-  private passiveHooks: (() => void)[] = []
 
   constructor(data: UserConstructorData) {
     super(data)
@@ -68,12 +66,7 @@ export class User extends Entity {
 
     super.passiveReset()
 
-    for (let hook of this.passiveHooks) {
-      hook()
-    }
-  }
-  addPassiveHook(hook: () => void) {
-    this.passiveHooks.push(hook)
+    this.callHook('afterPassiveUpdate')
   }
 
   override dailyReset() {
@@ -89,14 +82,9 @@ export class User extends Entity {
 
     super.dailyReset()
 
-    for (let hook of this.dailyHooks) {
-      hook()
-    }
-
     this.forgiveNonessentialActivitiesFromYesterday()
-  }
-  addDailyHook(hook: () => void) {
-    this.dailyHooks.push(hook)
+
+    this.callHook('afterDailyUpdate')
   }
 
   bringClearsUpToDate(): void {

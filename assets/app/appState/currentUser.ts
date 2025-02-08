@@ -18,6 +18,7 @@ import {
 } from '../storage/local'
 import { networkCheck } from './general'
 import { checkUserExists } from '../storage/remote'
+import type { Entity } from '../DataStructure/Entity'
 
 export const loadingUser = ref(false)
 export const currentUser: Ref<User | null> =
@@ -91,13 +92,14 @@ export async function loadUser(
   loadingUser.value = false
 
   currentUser.value = new User(userData)
+  currentUser.value.addHook('onSaveFail', onSaveFail)
   if (useRouter().currentRoute.value.path === '/login') {
     c.log('Redirecting to index from login')
     useRouter().push('/')
   }
 
   currentUser.value.passiveReset()
-  currentUser.value.addPassiveHook(() => {
+  currentUser.value.addHook('afterPassiveUpdate', () => {
     // c.log('passive reset')
     if (
       currentUser.value?.today?.energy === undefined &&
@@ -174,6 +176,7 @@ export async function createUser(
     clears: [],
   }
   currentUser.value = new User(userData)
+  currentUser.value.addHook('onSaveFail', onSaveFail)
   currentUser.value.save()
   return currentUser.value as User
 }
@@ -184,4 +187,15 @@ export function logOut() {
   setPassword('')
   useRouter().push('/login')
   currentUser.value = null
+}
+
+export async function onSaveFail(
+  announcer: Entity,
+  bubbledFrom?: Entity,
+) {
+  c.log('save failed', { announcer, bubbledFrom })
+
+  if (!(await networkCheck())) {
+    useRouter().push('/offline')
+  }
 }
