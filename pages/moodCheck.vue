@@ -102,18 +102,18 @@ function submit() {
     inputEnergy.value / 10,
   )
   appState.currentUser.value?.assignActivitiesForDay()
-  appState.focusedDay.value = c.dateToDateString()
+  appState.focusedDate.value = c.dateString()
   c.log('moodCheck result:', {
     mood: appState.currentUser.value?.yesterday?.mood,
     energy: appState.currentUser.value?.today?.energy,
-    focusedDay: appState.focusedDay.value,
+    focusedDate: appState.focusedDate.value,
     today: JSON.parse(
       JSON.stringify(
         appState.currentUser.value?.today || {},
       ),
     ),
   })
-  useRouter().push(`/day/${appState.focusedDay.value}`)
+  useRouter().push(`/day/${appState.focusedDate.value}`)
 }
 </script>
 

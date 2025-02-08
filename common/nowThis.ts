@@ -38,10 +38,10 @@ export function getUpdatedClears(oldClears: DatedResults): {
 } {
   const startDateString =
     oldClears?.[0]?.date ||
-    date.dateToDateString(date.addDaysToDate(null, -1))
+    date.dateString(date.addDaysToDate(null, -1))
   const newClears: DatedResults = []
   let currentDate = startDateString
-  const today = date.dateToDateString()
+  const today = date.dateString()
   let attempts = 0
   while (currentDate <= today && attempts < 1000) {
     attempts++
@@ -65,7 +65,7 @@ export function getUpdatedClears(oldClears: DatedResults): {
       // * this is causing data loss if there is a network isssue
       newClears.push({ date: dateString, clears: {} })
     }
-    currentDate = date.dateToDateString(
+    currentDate = date.dateString(
       date.addDaysToDate(currentDate, 1),
     )
   }

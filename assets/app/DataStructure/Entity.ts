@@ -25,10 +25,8 @@ export abstract class Entity {
   ) {
     this.id = data.id || c.id()
     this.updated =
-      data.updated ||
-      data.created ||
-      c.dateToDateTimeString()
-    this.created = data.created || c.dateToDateTimeString()
+      data.updated || data.created || c.dateTimeString()
+    this.created = data.created || c.dateTimeString()
     // this.promptCount = data.promptCount || 0
     this.parent = parent
   }
@@ -80,7 +78,7 @@ export abstract class Entity {
     )
 
     let updatedDate = moment()
-    this.updated = c.dateToDateTimeString(updatedDate)
+    this.updated = c.dateTimeString(updatedDate)
     this.keysToSave = new Set([
       ...(this.keysToSave || []),
       ...((keys as string[]) ||

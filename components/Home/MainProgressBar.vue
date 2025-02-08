@@ -78,7 +78,7 @@ import type { Activity } from '~/assets/app/DataStructure/Activity'
 const user = appState.currentUser
 
 const day = computed(() => {
-  return user.value?.getDay(appState.focusedDay.value)
+  return user.value?.getDay(appState.focusedDate.value)
 })
 </script>
 

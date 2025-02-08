@@ -9,7 +9,7 @@
     >
       <Confetti
         v-if="
-          appState.focusedDayIsToday.value &&
+          appState.focusedDateIsToday.value &&
           user.didMaxClearOnDay()
         "
         style="
@@ -21,7 +21,7 @@
       />
       <Confetti
         v-else-if="
-          appState.focusedDayIsToday.value &&
+          appState.focusedDateIsToday.value &&
           user.didClearOnDay()
         "
         style="
@@ -39,17 +39,14 @@
         >
           <h1 class="marbottiny">
             <div
-              v-if="
-                c.dateToDateString(date) !==
-                c.dateToDateString()
-              "
+              v-if="c.dateString(date) !== c.dateString()"
               class="small textcenter"
             >
               {{ moment(date).format('dddd, MMM D, YYYY') }}
             </div>
             <div
               v-else-if="
-                appState.focusedDayIsToday &&
+                appState.focusedDateIsToday &&
                 user.didMaxClearOnDay()
               "
             >
@@ -86,14 +83,11 @@
 
           <!-- {{ date }}
           <br />
-          {{ c.dateToDateString(date) }}
+          {{ c.dateString(date) }}
           <br />
-          {{ c.dateToDateString() }} -->
+          {{ c.dateString() }} -->
           <div
-            v-if="
-              c.dateToDateString(date) !==
-              c.dateToDateString()
-            "
+            v-if="c.dateString(date) !== c.dateString()"
             class="marbotsmall flexcolumn flexcenter"
           >
             <div class="nowrap">
@@ -124,7 +118,7 @@
 
               <nuxt-link
                 class="small"
-                :to="`/day/${c.dateToDateString()}`"
+                :to="`/day/${c.dateString()}`"
                 ><button>Today</button></nuxt-link
               >
 
@@ -172,7 +166,7 @@
             class="todaysActivitiesList martop relative z2"
           >
             <template
-              v-if="appState.focusedDayIsToday.value"
+              v-if="appState.focusedDateIsToday.value"
             >
               <template
                 v-if="activitiesThatMustBeDoneToday.length"
@@ -338,8 +332,7 @@ import moment from 'moment'
 import type { Moment } from 'moment'
 
 const dateStampFromUrl =
-  (useRoute().params.dateStamp as string) ||
-  c.dateToDateString()
+  (useRoute().params.dateStamp as string) || c.dateString()
 // const userTimezoneOffset = 0 //moment().getTimezoneOffset()
 // const userTimezoneOffsetInMs =
 //   userTimezoneOffset * 60 * 1000
@@ -349,12 +342,11 @@ const dateStampFromUrl =
 // )
 // c.log('date from route', useRoute().params.dateStamp)
 const date = moment(dateStampFromUrl as DateString)
-
-// appState.focusedDay.value = c.dateToDateString(date)
+appState.focusedDate.value = c.dateString(date)
 
 // c.log(
 //   moment(),
-//   c.dateToDateString(),
+//   c.dateString(),
 //   '2025-02-04',
 //   moment('2025-02-04'),
 //   '2025-02-04T00:00:00Z',
@@ -383,7 +375,7 @@ const user = appState.currentUser
 //   c.log('no activities, adding one')
 //   newActivity()
 // }
-if (appState.focusedDayIsToday.value) {
+if (appState.focusedDateIsToday.value) {
   // * if the user doesn't have enough activities to fill the day, try to add them now
   if (user.value?.today) {
     if (

@@ -1,7 +1,7 @@
 import moment from 'moment'
 import type { Moment } from 'moment'
 
-export function dateToDateString(
+export function dateString(
   d?: Moment | DateString | Date | null,
 ): DateString {
   // if (!d) {
@@ -18,7 +18,7 @@ export function dateToDateString(
   // let day: any = d.getDate()
   // if (day < 10) day = `0${day}`
   // // console.log(
-  // //   'dateToDateString',
+  // //   'dateString',
   // //   date,
   // //   `${year}-${month}-${day}`,
   // // )
@@ -28,7 +28,7 @@ export function dateToDateString(
     'YYYY-MM-DD',
   ) as DateString //`${year}-${month}-${day}`
 }
-export function dateToDateTimeString(
+export function dateTimeString(
   d?: Moment | DateString | DateTimeString,
 ): DateTimeString {
   // if (!d) {
@@ -39,7 +39,7 @@ export function dateToDateTimeString(
   //   // d = moment(d.getTime() + userTimezoneOffsetInMs)
   // }
 
-  // const dateString = dateToDateString(d)
+  // const dateString = dateString(d)
   // let hours: any = d.getHours()
   // if (hours < 10) hours = `0${hours}`
   // let minutes: any = d.getMinutes()

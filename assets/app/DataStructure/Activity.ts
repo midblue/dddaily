@@ -43,46 +43,31 @@ export class Activity extends Entity {
   get lastDone(): DateString | null {
     if (!this.parent) return null
 
-    const clears = (this.parent as User).clears
-    if (!clears) return null
-
-    for (let i = clears.length - 1; i >= 0; i--) {
-      const clearData = clears[i]
-      if ((clearData.clears[this.id] || 0) > 0)
-        return clearData.date
-    }
-
-    return null
+    return (
+      (this.parent as User).getDaysWhere({
+        filter: (c) => (c.clears[this.id] || 0) > 0,
+        limit: 1,
+        order: 'desc',
+      })?.[0]?.date || null
+    )
   }
   get lastDoneBeforeToday(): DateString | null {
     if (!this.parent) return null
-
-    const clears = (this.parent as User).clears
-    if (!clears) return null
-
-    for (let i = clears.length - 1; i >= 0; i--) {
-      const clearData = clears[i]
-      if (
-        (clearData.clears[this.id] || 0) > 0 &&
-        clearData.date !== c.dateToDateString()
-      )
-        return clearData.date
-    }
-
-    return null
+    const todayString = c.dateString()
+    return (
+      (this.parent as User).getDaysWhere({
+        filter: (c) =>
+          (c.clears[this.id] || 0) > 0 &&
+          c.date !== todayString,
+        limit: 1,
+        order: 'desc',
+      })?.[0]?.date || null
+    )
   }
 
-  didClearOnDay(
-    day: Moment | DateString = moment(),
-  ): boolean {
-    if (typeof day === 'string') day = moment(day)
-    if (!this.parent) return false
-    const clears = (this.parent as User).clears
-    if (!clears) return false
-
-    const dateString = c.dateToDateString(day)
-    const clearData = clears.find(
-      (c) => c.date === dateString,
+  didClearOnDay(day?: Moment | DateString): boolean {
+    const clearData = (this.parent as User).getDay(
+      day || moment(),
     )
     if (!clearData) return false
 
@@ -116,7 +101,7 @@ export class Activity extends Entity {
    */
   get dueness(): number {
     const lastDone = this.lastDone || moment(0)
-    const today = c.dateToDateString()
+    const today = c.dateString()
     const daysSinceLastDone = c.daysBetween(lastDone, today)
     if (this.exact && daysSinceLastDone < this.dayInterval)
       return -999
@@ -131,17 +116,8 @@ export class Activity extends Entity {
   get daysUntilStreakBreak(): number {
     const lastDone = this.lastDoneBeforeToday
     if (!lastDone) return 0
-    const today = c.dateToDateString()
-    const daysSinceLastDone = Math.abs(
-      c.daysBetween(lastDone, today),
-    )
-    // c.log(
-    //   this.name,
-    //   lastDone,
-    //   daysSinceLastDone,
-    //   daysSinceLastDone - this.dayInterval,
-    //   this.streakLeewayEitherDirection,
-    // )
+    const today = c.dateString()
+    const daysSinceLastDone = c.daysBetween(lastDone, today)
     return (
       this.streakLeewayEitherDirection -
       (daysSinceLastDone - this.dayInterval)
@@ -154,13 +130,26 @@ export class Activity extends Entity {
     const history = this.history
     let missedInARow = 0
     for (let i = 0; i < history.length; i++) {
-      if (history[i] === -1) continue
-      else if (history[i] === 0) missedInARow++
+      if (
+        history[i] === Activity.ActivityHistory.NotAssigned
+      )
+        continue
+      else if (
+        history[i] ===
+        Activity.ActivityHistory.FailedAndBrokeStreak
+      )
+        missedInARow++
       else break
     }
     return missedInARow
   }
 
+  static ActivityHistory = {
+    NotAssigned: -1,
+    FailedAndBrokeStreak: 0,
+    FailedButWithinLeeway: 1,
+    Completed: 5,
+  } as const
   /**
    * array going back in time from today in new-to-old order where
    * -1 is "was not assigned",
@@ -168,21 +157,23 @@ export class Activity extends Entity {
    * 1 is "failed to complete but was within leeway limit",
    * and 5 is "completed"
    * */
-  get history(): (-1 | 0 | 1 | 5)[] {
+  get history(): (typeof Activity.ActivityHistory)[keyof typeof Activity.ActivityHistory][] {
     if (!this.parent) return []
     const allClears = (this.parent as User).clears
     if (!allClears) return []
 
-    let history: (-1 | 0 | 1 | 5)[] = []
+    let history: (typeof Activity.ActivityHistory)[keyof typeof Activity.ActivityHistory][] =
+      []
     let lastDoneDate = moment(0)
     const streakLeewayEitherDirection =
       this.streakLeewayEitherDirection
     for (let i = 0; i < allClears.length; i++) {
       const clearData = allClears[i].clears[this.id]
-      if (clearData === undefined) history.push(-1)
+      if (clearData === undefined)
+        history.push(Activity.ActivityHistory.NotAssigned)
       else {
         if (clearData > 0) {
-          history.push(5)
+          history.push(Activity.ActivityHistory.Completed)
           lastDoneDate = moment(allClears[i].date)
         } else if (clearData === 0) {
           const daysBetween = c.daysBetween(
@@ -194,14 +185,19 @@ export class Activity extends Entity {
             daysBetween - this.dayInterval <=
               streakLeewayEitherDirection
           ) {
-            history.push(1)
+            history.push(
+              Activity.ActivityHistory
+                .FailedButWithinLeeway,
+            )
           } else {
             // c.log(
             //   daysBetween,
             //   this.dayInterval,
             //   streakLeewayEitherDirection,
             // )
-            history.push(0)
+            history.push(
+              Activity.ActivityHistory.FailedAndBrokeStreak,
+            )
           }
         }
       }
@@ -210,10 +206,21 @@ export class Activity extends Entity {
     // c.log(this.name, history.slice(0, 10))
 
     // remove trailing -1s
-    while (history[history.length - 1] === -1) history.pop()
+    while (
+      history[history.length - 1] ===
+      Activity.ActivityHistory.NotAssigned
+    )
+      history.pop()
 
     // skip "failed to complete" if it's today and could still be done
-    if ([0, 1].includes(history[0])) {
+    if (
+      (
+        [
+          Activity.ActivityHistory.FailedAndBrokeStreak,
+          Activity.ActivityHistory.FailedButWithinLeeway,
+        ] as any
+      ).includes(history[0])
+    ) {
       // c.log(
       //   'skipping failed to complete for today',
       //   this.name,
@@ -229,81 +236,25 @@ export class Activity extends Entity {
     const history = this.history
     let streak = 0
     for (let i = 0; i < history.length; i++) {
-      if (history[i] === 5) streak++
-      else if (history[i] === 0) break
+      if (history[i] === Activity.ActivityHistory.Completed)
+        streak++
+      else if (
+        history[i] ===
+        Activity.ActivityHistory.FailedAndBrokeStreak
+      )
+        break
     }
     return streak
-
-    // if (!this.parent) return 0
-    // const clears = (this.parent as User).clears
-    // if (!clears) return 0
-
-    // let streak = 0
-    // const leeway = this.streakLeewayEitherDirection
-
-    // let lastDone = c.dateToDateString()
-    // for (let i = clears.length - 1; i >= 0; i--) {
-    //   const clearData = clears[i]
-    //   // skip if not required for that day
-    //   if (clearData.clears[this.id] === undefined) continue
-
-    //   const isWithinLeeway =
-    //     !!leeway &&
-    //     Math.abs(c.daysBetween(lastDone, clearData.date)) -
-    //       this.dayInterval <=
-    //       leeway
-
-    //   c.log(this.name, i, {
-    //     streak,
-    //     cleared: clearData.clears[this.id]
-    //       ? 'cleared'
-    //       : 'not cleared',
-    //     leeway,
-    //     dayInterval: this.dayInterval,
-    //     daysBetween: c.daysBetween(
-    //       lastDone,
-    //       clearData.date,
-    //     ),
-    //     isWithinLeeway,
-    //   })
-    //   // if done, increase streak
-    //   if (
-    //     (clearData.clears[this.id] || 0) === 1 &&
-    //     streak >= 0
-    //   ) {
-    //     lastDone = clearData.date
-    //     streak++
-    //   }
-    //   // don't worry about today
-    //   else if (i === clears.length - 1) continue
-    //   // allow for leeway (only positive streak)
-    //   else if (streak >= 0 && isWithinLeeway) {
-    //     continue
-    //   }
-    //   // if not done, decrease streak
-    //   else if (
-    //     clearData.clears[this.id] !== undefined &&
-    //     clearData.clears[this.id] < 1 &&
-    //     streak <= 0
-    //   )
-    //     streak--
-    //   else break
-    // }
-
-    // return streak
   }
 
   get totalTimesDone(): number {
     if (!this.parent) return 0
-    const clears = (this.parent as User).clears
-    if (!clears) return 0
-
-    let total = 0
-    for (let i = clears.length - 1; i >= 0; i--) {
-      const clearData = clears[i]
-      total += clearData.clears[this.id] || 0
-    }
-
-    return total
+    return (
+      (this.parent as User).getDaysWhere({
+        filter: (c) => c.clears[this.id] > 0,
+        limit: undefined,
+        order: 'asc',
+      })?.length || 0
+    )
   }
 }

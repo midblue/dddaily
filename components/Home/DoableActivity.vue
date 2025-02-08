@@ -2,7 +2,7 @@
   <div
     class="activity relative flexbetween"
     v-if="user"
-    :key="appState.focusedDay.value + activity.id"
+    :key="appState.focusedDate.value + activity.id"
     :class="{ hover, slowHover }"
     @mouseover="hover = true"
     @mouseleave="hover = false"
@@ -15,12 +15,12 @@
         class="checkbox"
         :key="'chkbox' + activity.id + activity.streak"
         :initialValue="
-          activity.didClearOnDay(appState.focusedDay.value)
+          activity.didClearOnDay(appState.focusedDate.value)
         "
         @update="
           user.clearActivity(
             activity,
-            appState.focusedDay.value,
+            appState.focusedDate.value,
             $event ? 1 : 0,
           )
         "
@@ -43,7 +43,7 @@
               v-if="
                 activity.inspiration &&
                 !activity.didClearOnDay(
-                  appState.focusedDay.value,
+                  appState.focusedDate.value,
                 )
               "
             >
@@ -75,7 +75,7 @@
           class="relative"
           :class="{
             cleared: activity.didClearOnDay(
-              appState.focusedDay.value,
+              appState.focusedDate.value,
             ),
             veryDue: activity.dueness >= 1.5,
             optional: activity.dueness < 1.5,
@@ -85,7 +85,7 @@
             class="clearedLine"
             v-if="
               activity.didClearOnDay(
-                appState.focusedDay.value,
+                appState.focusedDate.value,
               )
             "
           ></div>
@@ -108,7 +108,7 @@
           class="streakNumber flexcenter"
           :class="{
             cleared: activity.didClearOnDay(
-              appState.focusedDay.value,
+              appState.focusedDate.value,
             ),
           }"
           v-if="hover || activity.streak"
@@ -117,10 +117,10 @@
             class="small"
             v-if="
               !activity.didClearOnDay(
-                appState.focusedDay.value,
+                appState.focusedDate.value,
               ) &&
-              appState.focusedDay.value ===
-                c.dateToDateString() &&
+              appState.focusedDate.value ===
+                c.dateString() &&
               (activity.daysUntilStreakBreak <= 0 ||
                 activity.missedInARow === 1)
             "
@@ -133,7 +133,7 @@
                 'font-size': '.6em',
                 filter:
                   activity.didClearOnDay(
-                    appState.focusedDay.value,
+                    appState.focusedDate.value,
                   ) ||
                   !activity.willBreakStreakIfNotDoneToday
                     ? 'none'
@@ -161,17 +161,18 @@
 
       <div
         v-if="
-          appState.focusedDay.value ===
-            c.dateToDateString() &&
+          appState.focusedDate.value === c.dateString() &&
           (activity.daysUntilStreakBreak >= 1 ||
             !activity.exact) &&
           user.today?.backupActivityIds?.length &&
-          !activity.didClearOnDay(appState.focusedDay.value)
+          !activity.didClearOnDay(
+            appState.focusedDate.value,
+          )
         "
         class="reloadSelf pointer"
         @click="
           user.swapActivityOnDay(
-            appState.focusedDay.value,
+            appState.focusedDate.value,
             activity.id,
           )
         "

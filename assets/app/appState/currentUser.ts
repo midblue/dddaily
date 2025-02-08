@@ -24,11 +24,11 @@ export const currentUser: Ref<User | null> =
   ref<User | null>(null) as any
 export const currentPassword: Ref<string> = ref('')
 
-export const focusedDay: Ref<DateString> = ref(
-  c.dateToDateString(),
+export const focusedDate: Ref<DateString> = ref(
+  c.dateString(),
 )
-export const focusedDayIsToday = computed(() => {
-  return c.daysBetween(null, focusedDay.value) === 0
+export const focusedDateIsToday = computed(() => {
+  return c.daysBetween(null, focusedDate.value) === 0
 })
 
 export let lastUserInteractionTimestampMs: Ref<number> =
@@ -112,7 +112,7 @@ export async function loadUser(
       useRoute().path === '/moodCheck'
     ) {
       c.log('Redirecting to today')
-      useRouter().push(`/day/${c.dateToDateString()}`)
+      useRouter().push(`/day/${c.dateString()}`)
     }
   })
 
@@ -126,19 +126,19 @@ export async function loadUser(
     )
     useRouter().push('/moodCheck')
   } else {
-    c.log('gray', 'Redirecting to day', focusedDay.value)
-    useRouter().push(`/day/${focusedDay.value}`)
+    c.log('gray', 'Redirecting to day', focusedDate.value)
+    useRouter().push(`/day/${focusedDate.value}`)
   }
 
   c.log('exhaustive date logs:', {
-    focusedDay: focusedDay.value,
-    focusedDayIsToday: focusedDayIsToday.value,
+    focusedDate: focusedDate.value,
+    focusedDateIsToday: focusedDateIsToday.value,
     now: moment(),
-    dateString: c.dateToDateString(),
-    timeString: c.dateToDateTimeString(),
+    dateString: c.dateString(),
+    timeString: c.dateTimeString(),
     daysBetweenFocused: c.daysBetween(
       null,
-      focusedDay.value,
+      focusedDate.value,
     ),
     daysBetweenNow: c.daysBetween(null, null),
     userToday: JSON.parse(
@@ -146,7 +146,7 @@ export async function loadUser(
     ),
     userDay: JSON.parse(
       JSON.stringify(
-        currentUser.value?.getDay(focusedDay.value) || {},
+        currentUser.value?.getDay(focusedDate.value) || {},
       ),
     ),
     userAllClears: JSON.parse(

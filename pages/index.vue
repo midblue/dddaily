@@ -13,7 +13,7 @@ onBeforeMount(() => {
     } else {
       c.l('redirecting to day on index load')
 
-      useRouter().push(`/day/${appState.focusedDay.value}`)
+      useRouter().push(`/day/${appState.focusedDate.value}`)
     }
   } else if (!appState.loadingUser.value) {
     c.l('redirecting to login on index load')
@@ -31,7 +31,7 @@ watch(user, () => {
     useRouter().push(`/moodCheck`)
   } else if (user.value) {
     c.l('redirecting to day on user update')
-    useRouter().push(`/day/${appState.focusedDay.value}`)
+    useRouter().push(`/day/${appState.focusedDate.value}`)
   } else if (!appState.loadingUser.value) {
     c.l('redirecting to login on no-user update')
     useRouter().push(`/login`)
