@@ -6,7 +6,7 @@ import { Activity } from './Activity'
 import { Entity } from './Entity'
 import { networkCheck } from '../appState'
 
-const maxFreebies = 3
+// const maxFreebies = 3
 
 export class User extends Entity {
   type: EntityType = 'User'
@@ -14,7 +14,7 @@ export class User extends Entity {
   activityIdOrder: string[]
   /** in old-to-new order */
   clears: DatedResults = []
-  freebiesAvailable: number = 0
+  // freebiesAvailable: number = 0
 
   private currentDay: DateString = c.dateString()
   private dailyHooks: (() => void)[] = []
@@ -37,7 +37,7 @@ export class User extends Entity {
     this.updateActivityOrder()
 
     this.clears = data.clears || []
-    this.freebiesAvailable = data.freebiesAvailable || 0
+    // this.freebiesAvailable = data.freebiesAvailable || 0
 
     this.passiveReset()
   }
@@ -47,7 +47,7 @@ export class User extends Entity {
       ...super.getSaveableData(),
       activityIdOrder: this.activityIdOrder,
       clears: this.clears,
-      freebiesAvailable: this.freebiesAvailable,
+      // freebiesAvailable: this.freebiesAvailable,
     }
   }
 
@@ -85,7 +85,7 @@ export class User extends Entity {
 
     this.bringClearsUpToDate()
 
-    this.checkUseFreebie()
+    // this.checkUseFreebie()
 
     super.dailyReset()
 
@@ -110,24 +110,24 @@ export class User extends Entity {
     }
   }
 
-  checkUseFreebie() {
-    if (
-      this.yesterday &&
-      !this.didClearOnDay(this.yesterday) &&
-      this.freebiesAvailable > 0
-    ) {
-      c.log(
-        'using freebie for yesterday:',
-        this.yesterday.date,
-        this.yesterday.acceptableEffort,
-        this.yesterday.effortExpended,
-      )
-      this.freebiesAvailable--
-      this.save(['freebiesAvailable'])
-      this.yesterday.usedFreebie = true
-      this.save(['clears'])
-    }
-  }
+  // checkUseFreebie() {
+  //   if (
+  //     this.yesterday &&
+  //     !this.didClearOnDay(this.yesterday) &&
+  //     this.freebiesAvailable > 0
+  //   ) {
+  //     c.log(
+  //       'using freebie for yesterday:',
+  //       this.yesterday.date,
+  //       this.yesterday.acceptableEffort,
+  //       this.yesterday.effortExpended,
+  //     )
+  //     this.freebiesAvailable--
+  //     this.save(['freebiesAvailable'])
+  //     this.yesterday.usedFreebie = true
+  //     this.save(['clears'])
+  //   }
+  // }
 
   forgiveNonessentialActivitiesFromYesterday() {
     if (this.yesterday) {
@@ -763,8 +763,8 @@ export class User extends Entity {
     //     (found.acceptableEffort || -1),
     // )
 
-    // * we count days where the user used a freebie as cleared
-    const usedFreebie = found.usedFreebie
+    // // * we count days where the user used a freebie as cleared
+    // const usedFreebie = found.usedFreebie
 
     // * we count days where the user matched the acceptable effort as cleared
     const clearedAcceptableEffort =
@@ -778,9 +778,8 @@ export class User extends Entity {
       Object.keys(found.clears).length === 0
 
     return (
-      usedFreebie ||
-      clearedAcceptableEffort ||
-      noActivitiesForDay
+      // usedFreebie ||
+      clearedAcceptableEffort || noActivitiesForDay
     )
   }
   didMaxClearOnDay(
@@ -820,19 +819,19 @@ export class User extends Entity {
         .reduce((a, b) => a + b.effortRequired, 0),
     )
 
-    // * in the case that you check things off later on, refund freebies if necessary
-    if (
-      results.usedFreebie &&
-      results.effortExpended >=
-        (results.acceptableEffort || Infinity)
-    ) {
-      results.usedFreebie = false
-      this.freebiesAvailable = c.clamp(
-        0,
-        this.freebiesAvailable + 1,
-        maxFreebies,
-      )
-    }
+    // // * in the case that you check things off later on, refund freebies if necessary
+    // if (
+    //   results.usedFreebie &&
+    //   results.effortExpended >=
+    //     (results.acceptableEffort || Infinity)
+    // ) {
+    //   results.usedFreebie = false
+    //   this.freebiesAvailable = c.clamp(
+    //     0,
+    //     this.freebiesAvailable + 1,
+    //     maxFreebies,
+    //   )
+    // }
 
     if (!dayWasAlreadyCleared && this.didClearOnDay(day)) {
       c.log('achieved goal!')
@@ -847,17 +846,17 @@ export class User extends Entity {
     ) {
       c.log('full clear!')
 
-      if (
-        !results.awardedFreebie &&
-        this.freebiesAvailable < maxFreebies
-      ) {
-        results.awardedFreebie = true
-        this.freebiesAvailable = c.clamp(
-          0,
-          this.freebiesAvailable + 1,
-          maxFreebies,
-        )
-      }
+      // if (
+      //   !results.awardedFreebie &&
+      //   this.freebiesAvailable < maxFreebies
+      // ) {
+      //   results.awardedFreebie = true
+      //   this.freebiesAvailable = c.clamp(
+      //     0,
+      //     this.freebiesAvailable + 1,
+      //     maxFreebies,
+      //   )
+      // }
     }
 
     this.save(['clears'])

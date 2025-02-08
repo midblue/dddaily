@@ -54,13 +54,13 @@
               <div class="sub" style="font-size: 1rem">
                 {{ user.getStreak() }} day streak!
               </div>
-              <div
+              <!-- <div
                 class="sub"
                 style="font-size: 1rem"
                 v-if="user.getDay(date)?.awardedFreebie"
               >
                 <span class="freebie">Freebie</span> earned!
-              </div>
+              </div> -->
             </div>
             <div v-else-if="user.didClearOnDay(date)">
               {{ user.getStreak() }} day streak!
@@ -241,19 +241,16 @@
           class="marbot windowwidth"
           :key="user.today?.effortExpended"
           :toGraph="
-            user.clears
-              .slice(-30)
-              .map((cl) => [
-                cl.date,
-                cl.mood,
-                user?.didClearOnDay(cl.date) ? 1 : 0,
-                cl.usedFreebie,
-                cl.effortExpended || 0,
-              ])
+            user.clears.slice(-30).map((cl) => [
+              cl.date,
+              cl.mood,
+              user?.didClearOnDay(cl.date) ? 1 : 0,
+              // cl.usedFreebie,
+              cl.effortExpended || 0,
+            ])
           "
           :max="1"
           :showLine="0.5"
-          :freebiesAvailable="user.freebiesAvailable"
           :streak="user.getStreak()"
           style="height: 100px"
         />

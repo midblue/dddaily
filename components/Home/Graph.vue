@@ -56,7 +56,7 @@
               date,
               mood,
               didClear,
-              didUseFreebie,
+              // didUseFreebie,
               didHaveMood,
               energyExpended,
             ],
@@ -74,9 +74,10 @@
             :r="1.5 + 3 * (energyExpended || 0)"
             :fill="
               didClear
-                ? didUseFreebie
-                  ? 'var(--freebie)'
-                  : 'var(--text)'
+                ? // didUseFreebie
+                  //   ? 'var(--freebie)'
+                  //   :
+                  'var(--text)'
                 : 'transparent'
             "
             :stroke="
@@ -138,9 +139,9 @@
             )
           }}
         </div>
-        <div class="freebies flex gaptiny">
+        <!-- <div class="freebies flex gaptiny">
           <div v-for="i in freebiesAvailable"></div>
-        </div>
+        </div> -->
         <div
           class="dateAxisItem smallcaps fade markRight textright"
         >
@@ -161,14 +162,14 @@ const {
   max,
   showLine,
   graphHeight,
-  freebiesAvailable,
+  // freebiesAvailable,
 } = defineProps({
   toGraph: {
     type: Object as PropType<
       [
         DateString,
         number | undefined,
-        number,
+        // number,
         boolean | undefined,
         number,
       ][]
@@ -185,10 +186,10 @@ const {
     type: Number,
     default: 100,
   },
-  freebiesAvailable: {
-    type: Number,
-    default: 0,
-  },
+  // freebiesAvailable: {
+  //   type: Number,
+  //   default: 0,
+  // },
   streak: {
     type: Number,
     default: 0,
@@ -235,7 +236,7 @@ const maxValue = computed(() => {
 const maxEnergyExpended = computed(() => {
   return Math.max(
     ...toGraph.map(
-      ([, , , , energyExpended]) => energyExpended,
+      ([, , , energyExpended]) => energyExpended,
     ),
   )
 })
@@ -246,7 +247,7 @@ const pointsWithRelevantXp = computed(() => {
       date,
       mood,
       didClear,
-      didUseFreebie,
+      // didUseFreebie,
       energyExpended,
     ]) => {
       if (mood !== undefined) prevXp = mood
@@ -254,7 +255,7 @@ const pointsWithRelevantXp = computed(() => {
         date,
         mood || prevXp || 0.5,
         didClear,
-        !!didUseFreebie,
+        // !!didUseFreebie,
         mood !== undefined,
         energyExpended / maxEnergyExpended.value,
       ]
@@ -262,7 +263,7 @@ const pointsWithRelevantXp = computed(() => {
   ) as [
     DateString,
     number,
-    number,
+    // number,
     boolean,
     boolean,
     number,
@@ -385,12 +386,12 @@ function toDate(date: DateString) {
   }
 }
 
-.freebies {
-  div {
-    width: 0.5em;
-    height: 0.5em;
-    border-radius: 50%;
-    background: var(--freebie);
-  }
-}
+// .freebies {
+//   div {
+//     width: 0.5em;
+//     height: 0.5em;
+//     border-radius: 50%;
+//     background: var(--freebie);
+//   }
+// }
 </style>

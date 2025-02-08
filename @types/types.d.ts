@@ -20,8 +20,8 @@ type DatedResults = {
     [activityId: string]: Clear
   }
   backupActivityIds?: string[]
-  usedFreebie?: boolean
-  awardedFreebie?: boolean
+  // usedFreebie?: boolean
+  // awardedFreebie?: boolean
 }[]
 
 type EntityType = 'User' | 'Activity' | 'Identity'
@@ -42,7 +42,7 @@ interface UserConstructorData
   clears: DatedResults
   activityConstructors?: ActivityConstructorData[]
   activityIdOrder?: string[]
-  freebiesAvailable?: number
+  // freebiesAvailable?: number
 }
 interface UserDbData extends UserConstructorData {
   hashedPassword: string
