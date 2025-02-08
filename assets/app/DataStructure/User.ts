@@ -763,8 +763,8 @@ export class User extends Entity {
     //     (found.acceptableEffort || -1),
     // )
 
-    // // * we count days where the user used a freebie as cleared
-    // const usedFreebie = found.usedFreebie
+    // * VESTIGIAL! we count days where the user used a freebie as cleared
+    const usedFreebie = (found as any).usedFreebie
 
     // * we count days where the user matched the acceptable effort as cleared
     const clearedAcceptableEffort =
@@ -778,8 +778,9 @@ export class User extends Entity {
       Object.keys(found.clears).length === 0
 
     return (
-      // usedFreebie ||
-      clearedAcceptableEffort || noActivitiesForDay
+      usedFreebie ||
+      clearedAcceptableEffort ||
+      noActivitiesForDay
     )
   }
   didMaxClearOnDay(
