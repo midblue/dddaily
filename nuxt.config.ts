@@ -26,7 +26,7 @@ export default defineNuxtConfig({
         {
           rel: 'icon',
           type: 'image/x-icon',
-          href: '/icon.ico',
+          href: '/dddaily/icon.ico',
         },
       ],
     },
